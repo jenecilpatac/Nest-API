@@ -12,6 +12,8 @@ import { LocalAuthGuard } from '../../Middleware/local-auth.guard';
 import { Users } from '../../../Database/Entity/user.entity';
 import { JwtAuthGuard } from '../../Middleware/jwt-auth.guard';
 import { UserService } from '../../Service/Blog/user.service';
+import { LoginDto } from '../../../Rules/DTO/Auth/login.dto';
+import { RegisterDto } from '../../../Rules/DTO/Auth/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,31 +22,23 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
     @Body()
-    body: {
-      usernameOrEmail: string;
-      password: string;
-      remember_token?: string;
-    },
+    loginDto: LoginDto,
   ) {
-    const user: Users | null = await this.authService.validateUser(
-      body.usernameOrEmail,
-      body.password,
-    );
+    const user: Users | null = await this.authService.validateUser(loginDto);
     if (!user) {
-      return { statusCode: 401, message: 'Invalid credentials' };
+      return { statusCode: 422, message: 'Invalid credentials' };
     }
     const { accessToken, remember_token } = await this.authService.login(
       user,
-      body.remember_token || null,
+      loginDto.remember_token || null,
     );
 
     if (user.email_verified_at === null) {
       return {
-        statusCode: 401,
+        statusCode: 422,
         message: 'Email not found or not verified yet',
       };
     }
@@ -69,5 +63,10 @@ export class AuthController {
       message: 'Profile fetched successfully',
       user,
     };
+  }
+
+  @Post('register')
+  async createUser(@Body() registerDto: RegisterDto): Promise<Users> {
+    return this.userService.create(registerDto);
   }
 }

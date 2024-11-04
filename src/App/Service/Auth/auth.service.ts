@@ -4,7 +4,7 @@ import { UserService } from '../Blog/user.service';
 import * as bcrypt from 'bcrypt';
 import { Users } from '../../../Database/Entity/user.entity';
 import * as crypto from 'crypto';
-import { stat } from 'fs';
+import { LoginDto } from '../../../Rules/DTO/Auth/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,12 +13,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(usernameOrEmail: string, password: string): Promise<any> {
+  async validateUser(loginDto: LoginDto): Promise<any> {
     const user =
-      (await this.userService.findByUserName(usernameOrEmail)) ||
-      (await this.userService.findByEmail(usernameOrEmail));
+      (await this.userService.findByUserName(loginDto.usernameOrEmail)) ||
+      (await this.userService.findByEmail(loginDto.usernameOrEmail));
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user && (await bcrypt.compare(loginDto.password, user.password))) {
       const { password, ...result } = user;
       return result;
     }

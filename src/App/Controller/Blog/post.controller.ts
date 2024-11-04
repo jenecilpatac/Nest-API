@@ -26,7 +26,7 @@ export class PostController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post()
+  @Post('create-post')
   async createPost(@Body() createPostDto: CreatePostDto): Promise<PostEntity> {
     return this.postService.create(createPostDto);
   }
