@@ -35,21 +35,29 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async findByUserName(username: string): Promise<Users | undefined> {
-    return this.userRepository.findOne({ where: { username } });
+  async findByUserName(username: string): Promise<Users | any> {
+    if (!username) {
+      return {
+        message: 'Eeeee',
+      };
+    }
+    return {
+      statusCode: 422,
+      data: this.userRepository.findOne({ where: { username } }),
+    };
   }
 
   async findByEmail(email: string): Promise<Users | undefined> {
     return this.userRepository.findOne({ where: { email } });
   }
-  
-  
-  async findByRememberToken(remember_token: string): Promise<Users | undefined> {
+
+  async findByRememberToken(
+    remember_token: string,
+  ): Promise<Users | undefined> {
     return this.userRepository.findOne({ where: { remember_token } });
   }
 
   async save(user: Users): Promise<Users> {
     return this.userRepository.save(user);
   }
-  
 }

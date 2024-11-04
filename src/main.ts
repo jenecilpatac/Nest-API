@@ -15,7 +15,9 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         const formattedErrors = {};
         errors.forEach((err) => {
-          formattedErrors[err.property] = err.constraints;
+          formattedErrors[err.property] = {
+            message: err.constraints[Object.keys(err.constraints)[0]],
+          };
         });
         return new BadRequestException(formattedErrors);
       },
