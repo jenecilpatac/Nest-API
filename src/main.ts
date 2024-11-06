@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { useContainer } from 'class-validator';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ async function bootstrap() {
       },
     }),
   );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.enableCors({
     origin: 'http://localhost:3001',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

@@ -22,7 +22,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Phone number is required' })
   @IsString({ message: 'Phone number must be a string' })
   @Length(11, 11, { message: 'Phone number must be 11 digits' })
-  @Matches(/^\d{11}$/, { message: 'Phone number must be a valid 11-digit number' })
+  @Matches(/^\d{11}$/, {
+    message: 'Phone number must be a valid 11-digit number',
+  })
   phone_number?: string;
 
   @IsEmail()

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostModule } from './App/Module/Blog/post.module';
 import { UserModule } from './App/Module/Blog/user.module';
 import { AuthModule } from './App/Module/Auth/auth.module';
+import { IsUnique } from './Rules/Validator/unique.validator';
 
 @Module({
   imports: [
@@ -22,5 +23,6 @@ import { AuthModule } from './App/Module/Auth/auth.module';
     UserModule,
     AuthModule,
   ],
+  providers: [IsUnique],
 })
 export class AppModule {}

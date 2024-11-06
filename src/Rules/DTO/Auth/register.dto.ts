@@ -4,8 +4,10 @@ import {
   IsEmail,
   Length,
   Matches,
+  Validate,
 } from 'class-validator';
 import { IsPasswordMatch } from '../../Validator/confirm-password.validator';
+import { IsUnique } from '../../Validator/unique.validator';
 export class RegisterDto {
   @IsString()
   @IsNotEmpty({ message: 'Name is required' })
@@ -29,10 +31,12 @@ export class RegisterDto {
 
   @IsEmail()
   @IsNotEmpty({ message: 'Email is required' })
+  @Validate(IsUnique, ['users', 'email'], { message: 'Email already taken' })
   email?: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Username is required' })
+  @Validate(IsUnique, ['users', 'username'], { message: 'Username already taken' })
   username?: string;
 
   @IsNotEmpty({ message: 'Password is required' })

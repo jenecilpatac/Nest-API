@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Users } from './user.entity';
+import { BlogCategories } from './blog-category.entity';
 
 @Entity()
 export class Posts {
@@ -20,6 +21,13 @@ export class Posts {
   @ManyToOne(() => Users, (user) => user.posts, { nullable: true, eager: true })
   @JoinColumn({ name: 'user_id' })
   user: Users;
+
+  @ManyToOne(() => BlogCategories, (blogCategory) => blogCategory.posts, {
+    nullable: true,
+    eager: true,
+  })
+  @JoinColumn({ name: 'blog_category_id' })
+  blogCategory: BlogCategories;
 
   @Column({ nullable: true })
   title: string;
