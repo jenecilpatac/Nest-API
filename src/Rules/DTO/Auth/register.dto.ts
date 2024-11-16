@@ -40,9 +40,11 @@ export class RegisterDto {
   username?: string;
 
   @IsNotEmpty({ message: 'Password is required' })
+  @IsString()
   password?: string;
 
   @IsNotEmpty({ message: 'Confirm password is required' })
   @IsPasswordMatch('password', { message: 'Passwords do not match' })
+  @IsString()
   confirmPassword: string;
 }

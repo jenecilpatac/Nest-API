@@ -18,9 +18,26 @@ export class AuthService {
       (await this.userService.findByUserName(loginDto.usernameOrEmail)) ||
       (await this.userService.findByEmail(loginDto.usernameOrEmail));
 
-    if (user && (await bcrypt.compare(loginDto.password, user.password))) {
-      const { password, ...result } = user;
-      return result;
+    if (user && user.password) {
+      if (!loginDto.password) {
+        console.error('Missing password in request.');
+        return null;
+      }
+
+      if (!user.password) {
+        console.error('Missing password in user record.');
+        return null;
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        loginDto.password,
+        user.password,
+      );
+
+      if (isPasswordValid) {
+        const { password, ...result } = user;
+        return result;
+      }
     }
     return null;
   }
@@ -34,7 +51,7 @@ export class AuthService {
 
       await this.userService.save(user);
     }
-    
+
     const accessToken = this.jwtService.sign({ ...payload, remember_token });
     return { accessToken, remember_token };
   }

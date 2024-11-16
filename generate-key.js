@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const secret = crypto.randomBytes(64).toString('hex');
-console.log(`Generated JWT secret: ${secret}`);
 
 const envFilePath = path.join(__dirname, '.env');
 
@@ -11,7 +10,6 @@ fs.readFile(envFilePath, 'utf8', (err, data) => {
   if (err) {
     fs.writeFile(envFilePath, `JWT_SECRET_KEY=${secret}\n`, (err) => {
       if (err) throw err;
-      console.log('.env file created and JWT_SECRET added.');
     });
   } else {
     const lines = data.split('\n');
@@ -27,7 +25,6 @@ fs.readFile(envFilePath, 'utf8', (err, data) => {
     }
     fs.writeFile(envFilePath, newEnvData.join('\n'), (err) => {
       if (err) throw err;
-      console.log('JWT_SECRET_KEY added/updated in .env file.');
     });
   }
 });

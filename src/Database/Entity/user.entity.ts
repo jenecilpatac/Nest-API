@@ -30,7 +30,7 @@ export class Users {
   @Column({ nullable: true })
   email_verified_at?: Date;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   password: string;
 
   @Column({ nullable: true })
