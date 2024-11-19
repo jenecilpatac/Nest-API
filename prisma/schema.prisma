@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum status {
+  pending
+  done
+  ongoing
+  cancelled
+}
+
+model users {
+  id              String     @id @default(uuid())
+  name            String?
+  address         String?
+  dateOfBirth     DateTime?  @db.Date
+  phoneNumber     String?
+  email           String?    @unique
+  username        String?    @unique
+  emailVerifiedAt DateTime?  @db.Timestamp(6)
+  password        String
+  rememberToken   String?    @unique
+
+  posts           posts[]
+  todos           todos[]
+  roles           roles[]    @relation("UserRoles")
+
+  createdAt       DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime   @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model roles {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users users[] @relation("UserRoles")
+}
+
+model categories {
+  id           Int      @id @default(autoincrement())
+  categoryName String   @unique @db.VarChar(255)
+  description  String?  @db.Text
+  slug         String?  @db.VarChar(255)
+  posts        posts[]  @relation("posts")
+
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model posts {
+  id          Int         @id @default(autoincrement())
+  userId      String?
+  categoryId  Int?
+  title       String?     @db.Text
+  description String?
+  createdAt   DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamp(6)
+
+  user        users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model todos {
+  id            Int       @id @default(autoincrement())
+  userId        String?
+  title         String?
+  content       String    @db.Text
+  status        status    @default(pending)
+
+  createdAt     DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  user          users?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

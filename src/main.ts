@@ -3,11 +3,16 @@ import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { useContainer } from 'class-validator';
+import { FastifyAdapter } from '@nestjs/platform-fastify';
+import Fastify from 'fastify';
 
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(
+    AppModule,
+    new FastifyAdapter(Fastify() as any),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -30,6 +35,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+  app.setGlobalPrefix('api');
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();

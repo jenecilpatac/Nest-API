@@ -1,36 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Posts as PostEntity } from '../../../Database/Entity/post.entity';
 import { CreatePostDto } from '../../../Rules/DTO/Blog/create-post.dto';
-import { Users } from '../../../Database/Entity/user.entity';
+import { PrismaService } from '../../Prisma/Service/prisma.service';
+import { posts } from '@prisma/client';
 
 @Injectable()
 export class PostService {
-  constructor(
-    @InjectRepository(PostEntity)
-    private postRepository: Repository<PostEntity>,
-    @InjectRepository(Users)
-    private userRepository: Repository<Users>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<PostEntity[]> {
-    return this.postRepository.find();
+  findAll(): Promise<posts[]> {
+    return this.prisma.posts.findMany();
   }
 
-  async create(createPostDto: CreatePostDto): Promise<PostEntity> {
-    const user = await this.userRepository.findOne({
-      where: { id: createPostDto.user_id },
+  async create(createPostDto: CreatePostDto): Promise<posts | any> {
+    const user = await this.prisma.users.findUnique({
+      where: { id: createPostDto.userId },
     });
     if (!user) {
       throw new Error('User ID does not exist');
     }
 
-    const post = this.postRepository.create(createPostDto);
-    return this.postRepository.save(post);
+    return this.prisma.posts.create({
+      data: {
+        ...createPostDto,
+        userId: user.id,
+      },
+    });
   }
 
-  findOne(id: number): Promise<PostEntity> {
-    return this.postRepository.findOne({ where: { id } });
+  findOne(id: number): Promise<posts> {
+    return this.prisma.posts.findUnique({ where: { id } });
   }
 }

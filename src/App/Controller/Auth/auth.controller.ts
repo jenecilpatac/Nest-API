@@ -8,12 +8,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from '../../Service/Auth/auth.service';
-import { LocalAuthGuard } from '../../Middleware/local-auth.guard';
-import { Users } from '../../../Database/Entity/user.entity';
 import { JwtAuthGuard } from '../../Middleware/jwt-auth.guard';
-import { UserService } from '../../Service/Blog/user.service';
+import { UserService } from '../../Service/User/user.service';
 import { LoginDto } from '../../../Rules/DTO/Auth/login.dto';
 import { RegisterDto } from '../../../Rules/DTO/Auth/register.dto';
+import { users } from '@prisma/client';
+import { AuthUser } from '../../../Decorator/auth-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -27,34 +27,39 @@ export class AuthController {
     @Body()
     loginDto: LoginDto,
   ) {
-    const user: Users | null = await this.authService.validateUser(loginDto);
-    if (!user) {
-      return { statusCode: 422, message: 'Invalid credentials' };
-    }
-    const { accessToken, remember_token } = await this.authService.login(
-      user,
-      loginDto.remember_token || null,
-    );
+    const user: users | null = await this.authService.validateUser(loginDto);
 
-    if (user.email_verified_at === null) {
+    if (!user) {
       return {
         statusCode: 422,
-        message: 'Email not found or not verified yet',
+        message: 'No account found or Invalid credentials',
       };
     }
+
+    if (!user.emailVerifiedAt || !user.email) {
+      return {
+        statusCode: 422,
+        message:
+          'Your account is not verified yet, please check your email or contact the administrator',
+      };
+    }
+
+    const { accessToken, rememberToken } = await this.authService.login(
+      user,
+      loginDto.rememberToken || null,
+    );
 
     return {
       statusCode: 200,
       message: 'Login successful',
       accessToken: accessToken,
-      remember_token: remember_token,
+      rememberToken: rememberToken,
     };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Request() req) {
-    const user = await this.userService.findById(req.user.id);
+  async getProfile(@AuthUser() user: any) {
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -66,7 +71,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async createUser(@Body() registerDto: RegisterDto): Promise<Users> {
-    return this.userService.create(registerDto);
+  async createUser(@Body() registerDto: RegisterDto): Promise<users> {
+    return this.authService.create(registerDto);
   }
 }

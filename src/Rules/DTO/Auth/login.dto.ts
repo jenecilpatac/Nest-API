@@ -12,5 +12,5 @@ export class LoginDto {
   @IsNotEmpty({ message: 'Password is required' })
   password: string;
   
-  remember_token?: string;
+  rememberToken?: string;
 }

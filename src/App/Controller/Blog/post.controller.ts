@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { PostService } from '../../Service/Blog/post.service';
-import { Posts as PostEntity } from '../../../Database/Entity/post.entity';
 import { CreatePostDto } from '../../../Rules/DTO/Blog/create-post.dto';
 import { JwtAuthGuard } from '../../../App/Middleware/jwt-auth.guard';
+import { posts } from '@prisma/client';
 
 @Controller('posts')
 export class PostController {
@@ -27,7 +27,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post('create-post')
-  async createPost(@Body() createPostDto: CreatePostDto): Promise<PostEntity> {
+  async createPost(@Body() createPostDto: CreatePostDto): Promise<posts> {
     return this.postService.create(createPostDto);
   }
 

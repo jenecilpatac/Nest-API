@@ -6,10 +6,10 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from '../../Service/Blog/user.service';
-import { CreateUserDto } from '../../../Rules/DTO/Blog/create-user.dto';
-import { Users } from '../../../Database/Entity/user.entity';
-import { JwtAuthGuard } from '../../../App/Middleware/jwt-auth.guard';
+import { UserService } from '../../Service/User/user.service';
+import { CreateUserDto } from '../../../Rules/DTO/User/create-user.dto';
+import { JwtAuthGuard } from '../../Middleware/jwt-auth.guard';
+import { users } from '@prisma/client';
 
 @Controller('users')
 export class UserController {
@@ -34,7 +34,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('create-user')
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<Users> {
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<users> {
     return this.userService.create(createUserDto);
   }
 

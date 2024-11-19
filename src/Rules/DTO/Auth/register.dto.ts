@@ -5,9 +5,12 @@ import {
   Length,
   Matches,
   Validate,
+  MinLength,
+  IsDate,
 } from 'class-validator';
 import { IsPasswordMatch } from '../../Validator/confirm-password.validator';
 import { IsUnique } from '../../Validator/unique.validator';
+import { Type } from 'class-transformer';
 export class RegisterDto {
   @IsString()
   @IsNotEmpty({ message: 'Name is required' })
@@ -17,17 +20,18 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Address is required' })
   address?: string;
 
-  @IsString()
   @IsNotEmpty({ message: 'Date of birth is required' })
-  date_of_birth?: string;
+  @IsDate()
+  @Type(() => Date)
+  dateOfBirth?: Date;
 
   @IsNotEmpty({ message: 'Phone number is required' })
-  @IsString({ message: 'Phone number must be a string' })
+  @IsString()
   @Length(11, 11, { message: 'Phone number must be 11 digits' })
   @Matches(/^\d{11}$/, {
     message: 'Phone number must be a valid 11-digit number',
   })
-  phone_number?: string;
+  phoneNumber?: string;
 
   @IsEmail()
   @IsNotEmpty({ message: 'Email is required' })
@@ -36,15 +40,21 @@ export class RegisterDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Username is required' })
-  @Validate(IsUnique, ['users', 'username'], { message: 'Username already taken' })
+  @Validate(IsUnique, ['users', 'username'], {
+    message: 'Username already taken',
+  })
   username?: string;
 
   @IsNotEmpty({ message: 'Password is required' })
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
   @IsString()
   password?: string;
 
   @IsNotEmpty({ message: 'Confirm password is required' })
-  @IsPasswordMatch('password', { message: 'Passwords do not match' })
+  @MinLength(6, {
+    message: 'Confirmation Password must be at least 6 characters',
+  })
+  @IsPasswordMatch(('password'), { message: 'Passwords do not match' })
   @IsString()
   confirmPassword: string;
 }

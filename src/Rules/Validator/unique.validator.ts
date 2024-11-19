@@ -4,20 +4,20 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { EntityManager } from 'typeorm';
+import { PrismaService } from '../../App/Prisma/Service/prisma.service';
 
 @ValidatorConstraint({ name: 'IsUniqueConstraint', async: true })
 @Injectable()
 export class IsUnique implements ValidatorConstraintInterface {
-  constructor(private readonly entityManager: EntityManager) {}
+  constructor(private readonly prisma: PrismaService) {}
   async validate(value: any, args?: ValidationArguments): Promise<boolean> {
-    const [tableName, column] = args?.constraints as string[];
+    const [modelName, column] = args?.constraints as string[];
 
-    const dataExist = await this.entityManager
-      .getRepository(tableName)
-      .createQueryBuilder(tableName)
-      .where({ [column]: value })
-      .getExists();
+    const dataExist = await this.prisma[modelName].findFirst({
+      where: {
+        [column]: value,
+      },
+    });
 
     return !dataExist;
   }
