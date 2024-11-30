@@ -1,34 +1,37 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-// Using nest js typeorm -> primsa
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostModule } from './App/Module/Blog/post.module';
-import { UserModule } from './App/Module/User/user.module';
-import { AuthModule } from './App/Module/Auth/auth.module';
-import { IsUnique } from './Rules/Validator/unique.validator';
-import { PrismaModule } from './App/Prisma/Module/prisma.module';
+import { PostModule } from './modules/blog/post.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { IsUnique } from './common/pipes/unique.validator';
+import { PrismaModule } from './modules/prisma/prisma.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { CategoryModule } from './modules/category/category.module';
+import { TodoModule } from './modules/todo/todo.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     ConfigModule.forRoot(),
-
-    // Using nest js typeorm -> primsa
-
-    // TypeOrmModule.forRoot({
-    //   type: process.env.DB_CONNECTION as any,
-    //   host: process.env.DB_HOST,
-    //   port: parseInt(process.env.DB_PORT, 10),
-    //   username: process.env.DB_USERNAME,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    //   synchronize: true,
-    // }),
     PostModule,
     UserModule,
     AuthModule,
+    CategoryModule,
     PrismaModule,
+    TodoModule,
   ],
-  providers: [IsUnique],
+  providers: [
+    IsUnique,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

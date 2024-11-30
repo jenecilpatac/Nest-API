@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id              String    @id @default(uuid())
+  name            String?
+  address         String?
+  dateOfBirth     DateTime? @db.Date
+  phoneNumber     String?
+  email           String?   @unique
+  username        String?   @unique
+  emailVerifiedAt DateTime? @db.Timestamp(6)
+  password        String?
+  rememberToken   String?   @unique
+  createdAt       DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  provider        String?
+  providerId      String?   @unique
+  posts           posts[]
+  todos           todos[]
+  roles           roles[]   @relation("UserRoles")
+}
+
+model roles {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users users[] @relation("UserRoles")
+}
+
+model categories {
+  id           Int      @id @default(autoincrement())
+  categoryName String   @unique @db.VarChar(255)
+  description  String?
+  slug         String?  @db.VarChar(255)
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  posts        posts[]  @relation("posts")
+}
+
+model posts {
+  id          Int         @id @default(autoincrement())
+  userId      String?
+  categoryId  Int?
+  title       String?
+  description String?
+  createdAt   DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamp(6)
+  category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Cascade)
+  user        users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model todos {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  title     String?
+  content   String
+  status    status   @default(pending)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum status {
+  pending
+  done
+  ongoing
+  cancelled
+}

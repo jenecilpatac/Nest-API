@@ -3,16 +3,36 @@ import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { useContainer } from 'class-validator';
-import { FastifyAdapter } from '@nestjs/platform-fastify';
-import Fastify from 'fastify';
+import * as passport from 'passport';
+import * as session from 'express-session';
+import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(
-    AppModule,
-    new FastifyAdapter(Fastify() as any),
+  const app = await NestFactory.create(AppModule);
+
+  app.use(
+    session({
+      secret: process.env.JWT_SECRET_KEY,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24,
+      },
+    }),
   );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use(helmet());
+
+  app.use(cookieParser());
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -29,13 +49,17 @@ async function bootstrap() {
       },
     }),
   );
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   app.enableCors({
-    origin: 'http://136.239.196.178:5005',
+    origin: process.env.CLIENT_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-  app.setGlobalPrefix('api');
+
+  app.setGlobalPrefix('api/v1');
+
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
