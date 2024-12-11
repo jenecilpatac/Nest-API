@@ -70,6 +70,7 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix('api/v1');
+  
   app.use('/', express.static(path.join(__dirname, '..')));
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
