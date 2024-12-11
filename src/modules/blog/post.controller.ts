@@ -1,14 +1,34 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  HttpException,
+  UseInterceptors,
+  UploadedFiles,
+  ParseFilePipeBuilder,
+  HttpStatus,
+  Req,
+  Delete,
+} from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { posts } from '@prisma/client';
+import { AuthUser } from '../../common/decorators/auth-user.decorator';
+import { CategoryService } from '../category/category.service';
+import { SkipThrottle } from '@nestjs/throttler';
+import { FilesInterceptor } from '@nestjs/platform-express';
 @Controller('posts')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly categoryService: CategoryService,
+  ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
+  @SkipThrottle()
   async getAllPosts(): Promise<any> {
     const posts = await this.postService.findAll();
 
@@ -27,14 +47,83 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post('create-post')
-  async createPost(@Body() createPostDto: CreatePostDto): Promise<posts> {
-    return this.postService.create(createPostDto);
+  @UseInterceptors(FilesInterceptor('image'))
+  @SkipThrottle()
+  async createPost(
+    @Body() createPostDto: CreatePostDto,
+    @AuthUser() user,
+    @UploadedFiles() image: Express.Multer.File[],
+  ): Promise<any> {
+    let imageFilenames: string[] = [];
+
+    if (!image || image.length === 0) {
+      createPostDto.image = [];
+    } else {
+      try {
+        for (const img of image) {
+          await new ParseFilePipeBuilder()
+            .addFileTypeValidator({
+              fileType: 'image/*',
+            })
+            .addMaxSizeValidator({
+              maxSize: 1000000,
+            })
+            .build({
+              errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+            })
+            .transform(img);
+          const normalizedPath = img.path.replace(/\\/g, '/');
+          imageFilenames.push(normalizedPath);
+        }
+
+        createPostDto.image = imageFilenames;
+      } catch (error) {
+        if (
+          error.response &&
+          error.message.includes(
+            'Validation failed (expected size is less than 1000000)',
+          )
+        ) {
+          throw new HttpException(
+            'File too large, only 1MB is allowed.',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        } else if (
+          error.response &&
+          error.message.includes('Validation failed (expected type is image/*)')
+        ) {
+          throw new HttpException(
+            'Invalid image type, only jpeg, jpg, png, gif, ico, webp are allowed.',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        } else {
+          throw new HttpException(
+            `Invalid file type or size: ${error.message}`,
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
+      }
+    }
+
+    const category = await this.categoryService.findById(
+      Number(createPostDto.categoryId),
+    );
+
+    if (!category) {
+      throw new HttpException('Category not found', 404);
+    }
+    const created = await this.postService.create(createPostDto, user.id);
+    return {
+      statusCode: 201,
+      message: 'Post added successfully',
+      created,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getPostById(@Param('id') id: number): Promise<any> {
-    const post = await this.postService.findOne(id);
+    const post = await this.postService.findById(id);
     if (!post || isNaN(Number(id))) {
       return {
         statusCode: 404,
@@ -45,5 +134,20 @@ export class PostController {
       statusCode: 200,
       post: post,
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  async deletePost(@Param('id') id: number, @AuthUser() user): Promise<any> {
+    const post = await this.postService.findById(id);
+    if (!post) {
+      throw new HttpException(`Post not found with id ${id}`, 404);
+    }
+
+    if (post.userId !== user.id) {
+      throw new HttpException(`You are not the owner of this post`, 401);
+    }
+
+    return this.postService.delete(id);
   }
 }

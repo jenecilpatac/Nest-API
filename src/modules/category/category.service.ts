@@ -22,4 +22,20 @@ export class CategoryService {
       },
     });
   }
+
+  findById(id: number): Promise<any> {
+    return this.prisma.categories.findUnique({
+      where: { id },
+      include: { posts: true },
+    });
+  }
+
+  findBySlug(slug: string): Promise<any> {
+    return this.prisma.categories.findFirst({
+      where: { slug },
+      include: {
+        posts: true,
+      },
+    });
+  }
 }

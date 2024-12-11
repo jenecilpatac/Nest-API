@@ -54,6 +54,7 @@ export class RegisterDto {
   @MinLength(6, {
     message: 'Confirmation Password must be at least 6 characters',
   })
+  
   @IsPasswordMatch(('password'), { message: 'Passwords do not match' })
   @IsString()
   confirmPassword: string;

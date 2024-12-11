@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { status as prismaStatus } from '@prisma/client';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('todos')
 export class TodoController {
@@ -19,6 +20,7 @@ export class TodoController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async findAll(@AuthUser() user): Promise<any> {
     const todos = await this.todoService.findAll(user.id);
 
@@ -39,6 +41,7 @@ export class TodoController {
 
   @Post('create-todos')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async createTodo(
     @Body() createTodoDto: CreateTodoDto,
     @AuthUser() user,
@@ -58,6 +61,7 @@ export class TodoController {
 
   @Get('id/:id')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async findTodoById(@Param('id') id: number, @AuthUser() user): Promise<any> {
     const todo = await this.todoService.findById(id);
     if (!todo) {
@@ -84,6 +88,7 @@ export class TodoController {
 
   @Get('status/:status')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async findTodoByStatus(
     @Param('status') status: prismaStatus,
     @AuthUser() user,
@@ -118,6 +123,7 @@ export class TodoController {
 
   @Post('update-todos/:id')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async updateTodo(
     @Param('id') id: number,
     @Body() updateTodoDto: CreateTodoDto,
@@ -153,6 +159,7 @@ export class TodoController {
 
   @Delete('delete-todos/:id')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async deleteTodo(@Param('id') id: number, @AuthUser() user): Promise<any> {
     const todo = await this.todoService.findById(id);
 
@@ -181,6 +188,7 @@ export class TodoController {
 
   @Post('change-status/:id')
   @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
   async changeTodoStatus(
     @Param('id') id: number,
     @Body() req,

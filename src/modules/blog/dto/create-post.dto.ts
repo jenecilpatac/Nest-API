@@ -1,15 +1,22 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, Validate, IsArray } from 'class-validator';
+import { IsExists } from '../../../common/pipes/is-exists';
 
 export class CreatePostDto {
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  image: string[] | null;
+
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Title is required' })
   title: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Description is required' })
   description?: string;
 
   @IsString()
-  @IsNotEmpty()
-  userId?: string;
+  @IsNotEmpty({ message: 'Please select category first' })
+  @IsExists('categories', 'id', { message: 'Category does not exist' })
+  categoryId?: number;
 }

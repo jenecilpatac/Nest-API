@@ -7,11 +7,21 @@ import * as passport from 'passport';
 import * as session from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import * as path from 'path';
+import * as express from 'express';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // const app = await NestFactory.create<NestFastifyApplication>(
+  //   AppModule,
+  //   new FastifyAdapter(),
+  // );
 
   app.use(
     session({
@@ -56,9 +66,11 @@ async function bootstrap() {
     origin: process.env.CLIENT_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.setGlobalPrefix('api/v1');
+  app.use('/', express.static(path.join(__dirname, '..')));
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }

@@ -45,6 +45,7 @@ model categories {
 
 model posts {
   id          Int         @id @default(autoincrement())
+  image       String[]
   userId      String?
   categoryId  Int?
   title       String?

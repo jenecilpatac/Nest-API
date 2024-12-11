@@ -8,26 +8,33 @@ export class PostService {
   constructor(private prisma: PrismaService) {}
 
   findAll(): Promise<posts[]> {
-    return this.prisma.posts.findMany();
-  }
-
-  async create(createPostDto: CreatePostDto): Promise<posts | any> {
-    const user = await this.prisma.users.findUnique({
-      where: { id: createPostDto.userId },
-    });
-    if (!user) {
-      throw new Error('User ID does not exist');
-    }
-
-    return this.prisma.posts.create({
-      data: {
-        ...createPostDto,
-        userId: user.id,
+    return this.prisma.posts.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        user: true,
+        category: true,
       },
     });
   }
 
-  findOne(id: number): Promise<posts> {
+  create(createPostDto: CreatePostDto, userId: string): Promise<posts> {
+    const { categoryId, ...datas } = createPostDto;
+    return this.prisma.posts.create({
+      data: {
+        ...datas,
+        categoryId: Number(categoryId),
+        userId,
+      },
+    });
+  }
+
+  findById(id: number) {
     return this.prisma.posts.findUnique({ where: { id } });
+  }
+
+  delete(id: number) {
+    return this.prisma.posts.delete({ where: { id } });
   }
 }
