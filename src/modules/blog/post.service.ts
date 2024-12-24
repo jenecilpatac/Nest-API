@@ -13,7 +13,19 @@ export class PostService {
         createdAt: 'desc',
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            profile_pictures: {
+              select: {
+                isSet: true,
+                avatar: true,
+              },
+              where: {
+                isSet: true,
+              },
+            },
+          },
+        },
         category: true,
       },
     });

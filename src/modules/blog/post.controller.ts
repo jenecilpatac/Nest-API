@@ -20,6 +20,7 @@ import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { CategoryService } from '../category/category.service';
 import { SkipThrottle } from '@nestjs/throttler';
 import { FilesInterceptor } from '@nestjs/platform-express';
+
 @Controller('posts')
 export class PostController {
   constructor(
@@ -41,6 +42,7 @@ export class PostController {
     }
     return {
       statusCode: 200,
+      message: 'Successfully fetched all posts',
       posts: posts,
     };
   }

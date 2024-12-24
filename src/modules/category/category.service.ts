@@ -34,7 +34,27 @@ export class CategoryService {
     return this.prisma.categories.findFirst({
       where: { slug },
       include: {
-        posts: true,
+        posts: {
+          include: {
+            user: {
+              include: {
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  }
+                }
+              }
+            },
+            category: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
   }

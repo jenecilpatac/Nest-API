@@ -13,6 +13,8 @@ import {
 } from '@nestjs/platform-fastify';
 import * as path from 'path';
 import * as express from 'express';
+import { Response } from 'express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 dotenv.config();
 
@@ -39,7 +41,11 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 
   app.use(cookieParser());
 
@@ -66,12 +72,42 @@ async function bootstrap() {
     origin: process.env.CLIENT_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.setGlobalPrefix('api/v1');
-  
+
   app.use('/', express.static(path.join(__dirname, '..')));
+
+  const expressApp = app.getHttpAdapter().getInstance();
+
+  const options = new DocumentBuilder()
+    .setTitle('My API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+
+  SwaggerModule.setup('api/v1/docs', app, document);
+
+  expressApp.get('/:filename', (req, res: Response) => {
+    const filename = req.params.filename;
+    const filePath = path.join(
+      __dirname,
+      '..',
+      'storage',
+      'profile-picture-uploads',
+      filename,
+    );
+
+    res.sendFile(filePath, {
+      headers: {
+        'Content-Disposition': `attachment; filename=${filename}`,
+        'Content-Type': 'application/octet-stream',
+      },
+    });
+  });
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }

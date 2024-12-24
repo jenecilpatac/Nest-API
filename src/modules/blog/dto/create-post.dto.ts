@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, Validate, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray } from 'class-validator';
 import { IsExists } from '../../../common/pipes/is-exists';
 
 export class CreatePostDto {

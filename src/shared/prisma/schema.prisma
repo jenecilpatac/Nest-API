@@ -7,24 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum status {
+  pending
+  done
+  ongoing
+  cancelled
+}
+
+enum privacy {
+  public
+  private
+  friends
+}
+
+enum gender {
+  Male
+  Female
+  NonBinary
+  Other
+  PreferNotToSay
+}
+
 model users {
-  id              String    @id @default(uuid())
-  name            String?
-  address         String?
-  dateOfBirth     DateTime? @db.Date
-  phoneNumber     String?
-  email           String?   @unique
-  username        String?   @unique
-  emailVerifiedAt DateTime? @db.Timestamp(6)
-  password        String?
-  rememberToken   String?   @unique
-  createdAt       DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(6)
-  provider        String?
-  providerId      String?   @unique
-  posts           posts[]
-  todos           todos[]
-  roles           roles[]   @relation("UserRoles")
+  id               String             @id @default(uuid())
+  name             String?
+  address          String?
+  dateOfBirth      DateTime?          @db.Date
+  phoneNumber      String?
+  email            String?            @unique
+  username         String?            @unique
+  emailVerifiedAt  DateTime?          @db.Timestamp(6)
+  password         String?
+  rememberToken    String?            @unique
+  createdAt        DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamp(6)
+  provider         String?
+  gender           gender?            @default(PreferNotToSay)
+  providerId       String?            @unique
+  bio              String?
+  jobTitle         String?
+  posts            posts[]
+  todos            todos[]
+  roles            roles[]            @relation("UserRoles")
+  profile_pictures profile_pictures[] 
+  cover_photos     cover_photos[]
 }
 
 model roles {
@@ -48,12 +74,13 @@ model posts {
   image       String[]
   userId      String?
   categoryId  Int?
+  publishedAs privacy     @default(public)
   title       String?
   description String?
   createdAt   DateTime    @default(now()) @db.Timestamp(6)
   updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamp(6)
-  category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Cascade)
-  user        users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Restrict)
+  user        users?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model todos {
@@ -67,9 +94,24 @@ model todos {
   user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum status {
-  pending
-  done
-  ongoing
-  cancelled
+model profile_pictures {
+  id          Int      @id @default(autoincrement())
+  userId      String?
+  avatar      String
+  isSet       Boolean?
+  publishedAs privacy  @default(public)
+  user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model cover_photos {
+  id          Int      @id @default(autoincrement())
+  userId      String?
+  avatar      String
+  isSet       Boolean?
+  publishedAs privacy  @default(public)
+  user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(6)
 }

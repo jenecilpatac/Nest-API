@@ -16,6 +16,7 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { GoogleAuthGuard } from '../../common/guards/google-auth.guard';
 import { GithubAuthGuard } from '../../common/guards/github-auth.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -61,6 +62,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
+  @SkipThrottle()
   async getProfile(@AuthUser() user: any) {
     if (!user) {
       throw new UnauthorizedException();

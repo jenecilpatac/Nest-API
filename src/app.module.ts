@@ -9,6 +9,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CategoryModule } from './modules/category/category.module';
 import { TodoModule } from './modules/todo/todo.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { TodoModule } from './modules/todo/todo.module';
     CategoryModule,
     PrismaModule,
     TodoModule,
+    ProfileModule,
+    RoleModule,
   ],
   providers: [
     IsUnique,

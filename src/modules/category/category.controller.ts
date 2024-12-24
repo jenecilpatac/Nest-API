@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CategoryService } from './category.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -38,5 +46,29 @@ export class CategoryController {
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<categories | any> {
     return this.categoriesService.create(createCategoryDto);
+  }
+
+  @Get(':slug')
+  @SkipThrottle()
+  async getCategoryBySlug(@Param('slug') slug: string) {
+    const category = await this.categoriesService.findBySlug(slug);
+
+    if (!category) {
+      throw new HttpException(`Category "${slug}" not found.`, 404);
+    }
+
+    if (category.posts.length === 0) {
+      return {
+        statusCode: 404,
+        message: `Category "${slug}" has no posts.`,
+        category: category,
+      };
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Category fetched successfully',
+      category,
+    };
   }
 }
