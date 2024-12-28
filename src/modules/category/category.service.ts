@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { categories } from '@prisma/client';
+import { ValidationError } from 'yup';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -15,10 +16,10 @@ export class CategoryService {
     });
   }
 
-  create(createCategoryDto: CreateCategoryDto): Promise<categories | any> {
+  create(createCategory: CreateCategoryDto): Promise<categories | any> {
     return this.prisma.categories.create({
       data: {
-        ...createCategoryDto,
+        ...createCategory,
       },
     });
   }
@@ -45,11 +46,54 @@ export class CategoryService {
                   },
                   where: {
                     isSet: true,
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             category: true,
+            likes: {
+              select: {
+                userId: true,
+                user: {
+                  select: {
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            comments: {
+              select: {
+                userId: true,
+                comment: true,
+                createdAt: true,
+                user: {
+                  select: {
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',

@@ -12,13 +12,14 @@ import {
   HttpStatus,
   Req,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { CategoryService } from '../category/category.service';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('posts')
@@ -151,5 +152,16 @@ export class PostController {
     }
 
     return this.postService.delete(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 100, ttl: 3600000 } })
+  @Post('like/:postId')
+  likePost(@Param('postId') postId: number, @AuthUser() user) {
+    this.postService.like(postId, user.id);
+    return {
+      statusCode: 201,
+      message: 'Post like action processed successfully',
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { posts } from '@prisma/client';
@@ -27,6 +27,50 @@ export class PostService {
           },
         },
         category: true,
+        likes: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        comments: {
+          select: {
+            userId: true,
+            comment: true,
+            createdAt: true,
+            user: {
+              select: {
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
   }
@@ -48,5 +92,30 @@ export class PostService {
 
   delete(id: number) {
     return this.prisma.posts.delete({ where: { id } });
+  }
+
+  async like(postId: number, userId: string) {
+    const like = await this.prisma.likes.findFirst({
+      where: {
+        postId: postId,
+        userId: userId,
+      },
+    });
+
+    if (like) {
+      return this.prisma.likes.deleteMany({
+        where: {
+          postId: postId,
+          userId: userId,
+        },
+      });
+    }
+
+    return this.prisma.likes.create({
+      data: {
+        postId,
+        userId,
+      },
+    });
   }
 }

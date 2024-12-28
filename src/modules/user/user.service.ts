@@ -77,6 +77,50 @@ export class UserService {
                 },
               },
             },
+            likes: {
+              select: {
+                userId: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            comments: {
+              select: {
+                userId: true,
+                comment: true,
+                createdAt: true,
+                user: {
+                  select: {
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',

@@ -12,8 +12,8 @@ import { CategoryService } from './category.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { categories } from '@prisma/client';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('categories')
 export class CategoryController {
@@ -42,10 +42,11 @@ export class CategoryController {
   @Post('create-category')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('superadmin', 'admin', 'moderator')
+  @SkipThrottle()
   async createCategory(
-    @Body() createCategoryDto: CreateCategoryDto,
-  ): Promise<categories | any> {
-    return this.categoriesService.create(createCategoryDto);
+    @Body() createCategory: CreateCategoryDto,
+  ): Promise<categories | CreateCategoryDto> {
+    return this.categoriesService.create(createCategory);
   }
 
   @Get(':slug')

@@ -11,6 +11,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { TodoModule } from './modules/todo/todo.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { RoleModule } from './modules/role/role.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RoleModule } from './modules/role/role.module';
     TodoModule,
     ProfileModule,
     RoleModule,
+    CommentsModule,
   ],
   providers: [
     IsUnique,

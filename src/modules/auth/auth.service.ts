@@ -115,6 +115,10 @@ export class AuthService {
         throw new Error('User role not found');
       }
 
+      const hashedPassword = await this.userService.hashPassword(
+        this.generateRememberToken(),
+      );
+
       const email =
         profile.emails && profile.emails[0] && profile.provider === 'google'
           ? `${profile.emails[0].value}`
@@ -131,7 +135,8 @@ export class AuthService {
             ? profile.username
             : profile.displayName || 'Unknown',
           email: email,
-          password: '',
+          password: hashedPassword,
+          emailVerifiedAt: new Date(),
           provider,
           name: profile.displayName
             ? profile.displayName

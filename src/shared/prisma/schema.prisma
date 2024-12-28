@@ -49,8 +49,10 @@ model users {
   posts            posts[]
   todos            todos[]
   roles            roles[]            @relation("UserRoles")
-  profile_pictures profile_pictures[] 
+  profile_pictures profile_pictures[]
   cover_photos     cover_photos[]
+  likes            likes[]
+  comments         comments[]
 }
 
 model roles {
@@ -81,6 +83,8 @@ model posts {
   updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamp(6)
   category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Restrict)
   user        users?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  likes       likes[]
+  comments    comments[]
 }
 
 model todos {
@@ -114,4 +118,25 @@ model cover_photos {
   user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now()) @db.Timestamp(6)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model likes {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  postId    Int?
+  post      posts?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updateAt  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model comments {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  postId    Int?
+  comment   String?
+  post      posts?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      users?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updateAt  DateTime @default(now()) @updatedAt @db.Timestamp(6)
 }
