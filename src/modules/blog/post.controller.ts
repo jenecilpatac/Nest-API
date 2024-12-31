@@ -41,6 +41,7 @@ export class PostController {
         posts: posts,
       };
     }
+
     return {
       statusCode: 200,
       message: 'Successfully fetched all posts',
@@ -123,8 +124,8 @@ export class PostController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
+  @SkipThrottle()
   async getPostById(@Param('id') id: number): Promise<any> {
     const post = await this.postService.findById(id);
     if (!post || isNaN(Number(id))) {

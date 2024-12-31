@@ -87,7 +87,69 @@ export class PostService {
   }
 
   findById(id: number) {
-    return this.prisma.posts.findUnique({ where: { id } });
+    return this.prisma.posts.findUnique({
+      where: { id },
+      include: {
+        user: {
+          include: {
+            profile_pictures: {
+              select: {
+                isSet: true,
+                avatar: true,
+              },
+              where: {
+                isSet: true,
+              },
+            },
+          },
+        },
+        category: true,
+        likes: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        comments: {
+          select: {
+            userId: true,
+            comment: true,
+            createdAt: true,
+            user: {
+              select: {
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
   }
 
   delete(id: number) {

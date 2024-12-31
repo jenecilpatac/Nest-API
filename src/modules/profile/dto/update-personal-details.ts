@@ -5,7 +5,7 @@ import {
   IsDate,
   IsEnum,
   IsOptional,
-  IsNotEmpty,
+  IsNotEmpty
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { gender } from '@prisma/client';
@@ -20,13 +20,13 @@ export class UpdatePersonalDetailsDto {
   @IsBeforeOrEqualToday({
     message: 'Date of birth must be before or equal to today',
   })
-  @IsNotEmpty({ message: 'Date of birth is required' })
+  @IsNotEmpty({ message: 'Date of birth field is required' })
   @IsDate({ message: 'Date of birth must be a valid date' })
   @Type(() => Date)
   dateOfBirth?: Date;
 
   @IsOptional()
-  @IsNotEmpty({ message: 'Phone number is required' })
+  @IsNotEmpty({ message: 'Phone number field is required' })
   @IsString({ message: 'Phone number must be a string' })
   @Length(11, 11, { message: 'Phone number must be 11 digits' })
   @Matches(/^\d{11}$/, {
@@ -34,7 +34,7 @@ export class UpdatePersonalDetailsDto {
   })
   phoneNumber?: string;
 
-  @IsNotEmpty({ message: 'Gender is required' })
+  @IsNotEmpty({ message: 'Gender field is required' })
   @IsEnum(gender, { message: "You've selected an invalid gender" })
   @IsOptional()
   gender?: gender;

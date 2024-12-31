@@ -12,6 +12,8 @@ import { TodoModule } from './modules/todo/todo.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { RoleModule } from './modules/role/role.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { CommentsModule } from './modules/comments/comments.module';
     ProfileModule,
     RoleModule,
     CommentsModule,
+    SettingsModule,
+    DashboardModule,
   ],
   providers: [
     IsUnique,

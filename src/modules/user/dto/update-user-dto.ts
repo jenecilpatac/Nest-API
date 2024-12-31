@@ -10,15 +10,15 @@ import { IsPasswordMatch } from '../../../common/pipes/confirm-password.validato
 
 export class UpdateUserDto {
   @IsString()
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Name field is required' })
   name: string;
 
   @IsEmail()
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsNotEmpty({ message: 'Email field is required' })
   email?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Username is required' })
+  @IsNotEmpty({ message: 'Username field is required' })
   username?: string;
 
   @IsOptional()
@@ -26,7 +26,7 @@ export class UpdateUserDto {
   password?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Role is required' })
+  @IsNotEmpty({ message: 'Role field is required' })
   role?: string;
 
   @IsOptional()

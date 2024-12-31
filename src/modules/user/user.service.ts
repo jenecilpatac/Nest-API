@@ -200,7 +200,7 @@ export class UserService {
         };
       }
     } else if (password) {
-      errors.oldPassword = { message: 'Old password is required' };
+      errors.oldPassword = { message: 'Old password field is required' };
     }
 
     if (Object.keys(errors).length > 0) {

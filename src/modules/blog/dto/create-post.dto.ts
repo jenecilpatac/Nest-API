@@ -8,11 +8,11 @@ export class CreatePostDto {
   image: string[] | null;
 
   @IsString()
-  @IsNotEmpty({ message: 'Title is required' })
+  @IsNotEmpty({ message: 'Title field is required' })
   title: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Description is required' })
+  @IsNotEmpty({ message: 'Description field is required' })
   description?: string;
 
   @IsString()

@@ -7,11 +7,11 @@ export class CreateTodoDto {
   userId: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Title is required' })
+  @IsNotEmpty({ message: 'Title field is required' })
   title: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Content is required' })
+  @IsNotEmpty({ message: 'Content field is required' })
   content: string;
 
   @IsEnum(status)

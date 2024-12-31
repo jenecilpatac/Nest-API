@@ -5,11 +5,11 @@ import {
 
 export class LoginDto {
   @IsString()
-  @IsNotEmpty({ message: 'Username or email is required' })
+  @IsNotEmpty({ message: 'Username or email field is required' })
   usernameOrEmail: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Password is required' })
+  @IsNotEmpty({ message: 'Password field is required' })
   password: string;
   
   rememberToken?: string;
