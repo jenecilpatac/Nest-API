@@ -10,9 +10,9 @@ services:
       - nest-js
     environment:
       NODE_ENV: production
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
 
   server-nginx-blog:
     image: nginx:alpine
