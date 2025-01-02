@@ -14,6 +14,8 @@ import { RoleModule } from './modules/role/role.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { EmailService } from './modules/email/email.service';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     CommentsModule,
     SettingsModule,
     DashboardModule,
+    EmailModule,
   ],
   providers: [
     IsUnique,
@@ -42,6 +45,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    EmailService,
   ],
 })
 export class AppModule {}
