@@ -13,12 +13,11 @@ RUN npm install -g pnpm
 # Install dependencies using pnpm
 RUN pnpm install
 
-RUN pnpm add @prisma/client
-RUN pnpm prisma generate
-
-
 # Copy the entire app code
 COPY . .
+
+# Generate Prisma Client (requires schema.prisma to be present)
+RUN pnpm prisma generate
 
 # Build the NestJS application
 RUN pnpm run build
