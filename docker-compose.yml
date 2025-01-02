@@ -15,6 +15,7 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
     volumes:
       - ./.env.example:/app/.env  # Ensure .env is available in the container
     # volumes:
