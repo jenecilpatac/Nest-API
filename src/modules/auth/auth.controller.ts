@@ -89,7 +89,7 @@ export class AuthController {
     const data = req.user;
     res.redirect(
       301,
-      `http://136.239.196.178:5005/success?token=${data.jwtToken}&rememberToken=${data.user.rememberToken}&email=${data.user.email}`,
+      `https://server-blog.smctgroup.ph/success?token=${data.jwtToken}&rememberToken=${data.user.rememberToken}&email=${data.user.email}`,
     );
   }
 
@@ -103,7 +103,7 @@ export class AuthController {
     const data = req.user;
     res.redirect(
       301,
-      `http://136.239.196.178:5005/success?token=${data.jwtToken}&rememberToken=${data.user.rememberToken}&email=${data.user.email}`,
+      `https://server-blog.smctgroup.ph/success?token=${data.jwtToken}&rememberToken=${data.user.rememberToken}&email=${data.user.email}`,
     );
   }
 }
