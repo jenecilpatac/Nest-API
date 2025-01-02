@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  server-blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server-blog
+    networks:
+      - nest-js
+    environment:
+      NODE_ENV: production
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  server-nginx-blog:
+    image: nginx:alpine
+    container_name: server-nginx-blog
+    ports:
+      - "2002:2002"
+    networks:
+      - nest-js
+    volumes:
+      - ./default.conf:/etc/nginx/nginx.conf:ro
+
+networks:
+  nest-js:
+    driver: bridge
