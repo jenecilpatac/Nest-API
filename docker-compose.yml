@@ -11,6 +11,10 @@ services:
     environment:
       NODE_ENV: production
       JWT_SECRET: ${JWT_SECRET}  # Assuming JWT_SECRET is set in your .env
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
     volumes:
       - ./.env.example:/app/.env  # Ensure .env is available in the container
     # volumes:
