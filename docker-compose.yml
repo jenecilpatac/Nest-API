@@ -10,6 +10,9 @@ services:
       - nest-js
     environment:
       NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}  # Assuming JWT_SECRET is set in your .env
+    volumes:
+      - ./.env.example:/app/.env  # Ensure .env is available in the container
     # volumes:
     #   - .:/app
     #   - /app/node_modules
