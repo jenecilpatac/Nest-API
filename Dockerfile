@@ -13,6 +13,10 @@ RUN npm install -g pnpm
 # Install dependencies using pnpm
 RUN pnpm install
 
+RUN pnpm add @prisma/client
+RUN pnpm prisma generate
+
+
 # Copy the entire app code
 COPY . .
 
