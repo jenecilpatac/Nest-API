@@ -13,6 +13,7 @@ import { GoogleAuthGuard } from '../../common/guards/google-auth.guard';
 import { GitHubStrategy } from '../../common/strategies/github.strategy';
 import { GithubAuthGuard } from '../../common/guards/github-auth.guard';
 import { UserModule } from '../user/user.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserModule } from '../user/user.module';
     PrismaModule,
     ConfigModule,
     UserModule,
+    EmailModule,
   ],
   providers: [
     AuthService,
