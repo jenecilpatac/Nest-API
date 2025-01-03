@@ -17,6 +17,9 @@ services:
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       DATABASE_URL: ${DATABASE_URL}
+    volumes:
+     - ./home/webserver/uploads/blog-uploads:/app/storage
+
 
   server-nginx-blog:
     image: nginx:alpine
