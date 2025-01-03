@@ -16,10 +16,12 @@ import { gender } from '@prisma/client';
 import { IsBeforeOrEqualToday } from '../../../common/pipes/before-or-equal-today';
 
 export class UpdateSettingDto extends PartialType(CreateSettingDto) {
+  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Name field is required' })
   name: string;
 
+  @IsOptional()
   @IsString()
   @IsEmail()
   @IsNotEmpty({ message: 'Email field is required' })
@@ -51,19 +53,22 @@ export class UpdateSettingDto extends PartialType(CreateSettingDto) {
   @Type(() => Date)
   dateOfBirth?: Date;
 
+  @IsOptional()
   @IsNotEmpty({ message: 'Gender field is required' })
   @IsEnum(gender, { message: "You've selected an invalid gender" })
-  @IsOptional()
   gender?: gender;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Old password field is required' })
   oldPassword: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'New password field is required' })
   newPassword: string;
 
+  @IsOptional()
   @IsString()
   @IsPasswordMatch('newPassword', { message: 'Passwords do not match' })
   @IsNotEmpty({ message: 'Confirm password field is required' })
