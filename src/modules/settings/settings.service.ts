@@ -69,7 +69,7 @@ export class SettingsService {
   }
 
   updatePersonalInfo(userId: string, updateSettingDto: UpdateSettingDto) {
-    const { newPassword, confirmNewPassword, oldPassword, dateOfBirth, ...rest } =
+    const { newPassword, confirmNewPassword, oldPassword, dateOfBirth, email, ...rest } =
       updateSettingDto;
     return this.prisma.users.updateMany({
       where: {
