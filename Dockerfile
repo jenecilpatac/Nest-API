@@ -16,7 +16,6 @@ RUN pnpm install
 # Copy the entire app code
 COPY . .
 
-COPY .env /app/
 # Generate Prisma Client (requires schema.prisma to be present)
 RUN pnpm prisma generate
 
