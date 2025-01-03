@@ -37,7 +37,10 @@ export class SettingsController {
   @Patch('manage-personal-info')
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 20, ttl: 3600000 } })
-  async upatePersonalInfoSetting(@AuthUser() user, @Body() updateSettingDto) {
+  async upatePersonalInfoSetting(
+    @AuthUser() user,
+    @Body() updateSettingDto: UpdateSettingDto,
+  ) {
     await this.settingsService.updatePersonalInfo(user.id, updateSettingDto);
 
     return {
