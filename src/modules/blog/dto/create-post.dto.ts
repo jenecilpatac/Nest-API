@@ -1,5 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  IsEnum,
+} from 'class-validator';
 import { IsExists } from '../../../common/pipes/is-exists';
+import { privacy } from '@prisma/client';
 
 export class CreatePostDto {
   @IsArray()
@@ -7,9 +14,9 @@ export class CreatePostDto {
   @IsOptional()
   image: string[] | null;
 
-  @IsString()
-  @IsNotEmpty({ message: 'Title field is required' })
-  title: string;
+  @IsOptional()
+  @IsEnum(privacy, { message: 'Invalid privacy selection' })
+  publishedAs: privacy;
 
   @IsString()
   @IsNotEmpty({ message: 'Description field is required' })

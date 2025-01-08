@@ -21,9 +21,7 @@ import { UpdateUserDto } from './dto/update-user-dto';
 
 @Controller('users')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
@@ -63,6 +61,23 @@ export class UserController {
   @SkipThrottle()
   async getUserById(@Param('id') id: string): Promise<any> {
     const user = await this.userService.findById(id);
+    if (!user) {
+      return {
+        statusCode: 404,
+        message: 'No user found on this id',
+      };
+    }
+    return {
+      statusCode: 200,
+      message: 'User fetched successfully',
+      user: user,
+    };
+  }
+
+  @Get('for/seo/:id')
+  @SkipThrottle()
+  async getUserByIdForSeo(@Param('id') id: string): Promise<any> {
+    const user = await this.userService.findForSeo(id);
     if (!user) {
       return {
         statusCode: 404,
@@ -140,6 +155,25 @@ export class UserController {
       statusCode: HttpStatus.OK,
       message: 'User updated successfully',
       user,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('to/chat')
+  @SkipThrottle()
+  async getAllUsersChat() {
+    const users = await this.userService.getAll();
+
+    if (users.length === 0) {
+      return {
+        statusCode: 404,
+        message: 'No users found',
+      };
+    }
+    return {
+      statusCode: 200,
+      message: 'Users fetched successfully',
+      users: users,
     };
   }
 }

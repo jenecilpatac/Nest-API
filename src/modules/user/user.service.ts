@@ -9,6 +9,27 @@ import { UpdateUserDto } from './dto/update-user-dto';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  getAll() {
+    return this.prisma.users.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        profile_pictures: {
+          select: {
+            avatar: true,
+            isSet: true,
+          },
+          where: {
+            isSet: true,
+          },
+        },
+        senderChats: true,
+        receiverChats: true,
+      },
+    });
+  }
+
   findAll(userId: string): Promise<users[]> {
     return this.prisma.users.findMany({
       where: {
@@ -45,6 +66,29 @@ export class UserService {
           },
         },
         emailVerifiedAt: new Date(),
+      },
+    });
+  }
+
+  async findForSeo(id: string): Promise<any> {
+    return this.prisma.users.findUnique({
+      where: { id },
+      select: {
+        name: true,
+        id: true,
+        address: true,
+        jobTitle: true,
+        phoneNumber: true,
+        bio: true,
+        profile_pictures: {
+          select: {
+            avatar: true,
+            isSet: true,
+          },
+          where: {
+            isSet: true,
+          },
+        },
       },
     });
   }
@@ -124,6 +168,102 @@ export class UserService {
           },
           orderBy: {
             createdAt: 'desc',
+          },
+        },
+        senderChats: {
+          where: {
+            OR: [{ senderId: id }, { receiverId: id }],
+          },
+          include: {
+            messages: {
+              include: {
+                chat: true,
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+            sender: {
+              select: {
+                name: true,
+                id: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+            receiver: {
+              select: {
+                name: true,
+                id: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        },
+        receiverChats: {
+          where: {
+            OR: [{ senderId: id }, { receiverId: id }],
+          },
+          include: {
+            messages: {
+              include: {
+                chat: true,
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+            sender: {
+              select: {
+                name: true,
+                id: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+            receiver: {
+              select: {
+                name: true,
+                id: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            updatedAt: 'desc',
           },
         },
       },

@@ -16,6 +16,8 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { EmailService } from './modules/email/email.service';
 import { EmailModule } from './modules/email/email.module';
+import { ChatsModule } from './modules/chats/chats.module';
+import { ChatMessagesModule } from './modules/chat-messages/chat-messages.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { EmailModule } from './modules/email/email.module';
     SettingsModule,
     DashboardModule,
     EmailModule,
+    ChatsModule,
+    ChatMessagesModule,
   ],
   providers: [
     IsUnique,
