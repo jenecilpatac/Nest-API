@@ -9,6 +9,11 @@ export class PostService {
 
   findAll(): Promise<posts[]> {
     return this.prisma.posts.findMany({
+      where: {
+        publishedAs: {
+          notIn: ['private'],
+        },
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -177,6 +182,77 @@ export class PostService {
       data: {
         postId,
         userId,
+      },
+    });
+  }
+
+  userPosts(userId: string) {
+    return this.prisma.posts.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        category: true,
+        user: {
+          include: {
+            profile_pictures: {
+              select: {
+                isSet: true,
+                avatar: true,
+              },
+              where: {
+                isSet: true,
+              },
+            },
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        comments: {
+          select: {
+            userId: true,
+            comment: true,
+            createdAt: true,
+            user: {
+              select: {
+                name: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }

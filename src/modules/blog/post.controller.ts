@@ -165,4 +165,11 @@ export class PostController {
       message: 'Post like action processed successfully',
     };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  @Get('own/user-posts')
+  async getuserPosts(@AuthUser() user) {
+    return await this.postService.userPosts(user.id);
+  }
 }
