@@ -93,8 +93,8 @@ export class UserService {
     });
   }
 
-  async findById(id: string): Promise<(users & { roles: any }) | undefined> {
-    return this.prisma.users.findUnique({
+  async findById(id: string): Promise<any> {
+    return await this.prisma.users.findUnique({
       where: { id },
       include: {
         roles: true,
@@ -112,6 +112,70 @@ export class UserService {
   async findByUserName(username: string): Promise<users | undefined> {
     return this.prisma.users.findUnique({
       where: { username },
+      include: {
+        profile_pictures: {
+          orderBy: [
+            {
+              createdAt: 'desc',
+            },
+          ],
+        },
+        posts: {
+          where: {
+            publishedAs: 'public',
+          },
+          include: {
+            category: true,
+            likes: {
+              select: {
+                userId: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            comments: {
+              select: {
+                userId: true,
+                comment: true,
+                createdAt: true,
+                user: {
+                  select: {
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        isSet: true,
+                        avatar: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
     });
   }
 

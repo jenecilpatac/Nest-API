@@ -25,6 +25,6 @@ export class IsUnique implements ValidatorConstraintInterface {
   defaultMessage(validationArguments: ValidationArguments): string {
     const field = validationArguments.property;
 
-    return `${field} is already taken.`;
+    return `${field} is already been taken.`;
   }
 }

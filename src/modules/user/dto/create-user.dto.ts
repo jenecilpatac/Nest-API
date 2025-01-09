@@ -15,13 +15,13 @@ export class CreateUserDto {
 
   @IsEmail()
   @IsNotEmpty({ message: 'Email field is required' })
-  @Validate(IsUnique, ['users', 'email'], { message: 'Email is already taken' })
+  @Validate(IsUnique, ['users', 'email'], { message: 'Email is already been taken' })
   email?: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Username field is required' })
   @Validate(IsUnique, ['users', 'username'], {
-    message: 'Username is already taken',
+    message: 'Username is already been taken',
   })
   username?: string;
 

@@ -176,4 +176,19 @@ export class UserController {
       users: users,
     };
   }
+
+  @SkipThrottle()
+  @Get('profile/:username')
+  async getUserProfile(@Param('username') username) {
+    const user = await this.userService.findByUserName(username);
+
+    if (!user) {
+      throw new HttpException(
+        'Sorry this is not available right now',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    throw new HttpException(user, HttpStatus.OK);
+  }
 }

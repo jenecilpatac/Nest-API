@@ -5,7 +5,7 @@ export class CreateCategoryDto {
   @IsString()
   @IsNotEmpty({ message: 'Category name field is required' })
   @Validate(IsUnique, ['categories', 'categoryName'], {
-    message: 'Category Name already taken',
+    message: 'Category name is already been taken',
   })
   categoryName: string;
 
