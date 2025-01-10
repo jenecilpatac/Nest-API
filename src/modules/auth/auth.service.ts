@@ -57,7 +57,10 @@ export class AuthService {
       });
     }
 
-    const accessToken = this.jwtService.sign({ ...payload, rememberToken });
+    const accessToken = this.jwtService.sign(
+      { ...payload, rememberToken },
+      { expiresIn: '1d' },
+    );
     return { accessToken, rememberToken };
   }
 
@@ -179,6 +182,6 @@ export class AuthService {
       rememberToken: user.rememberToken,
     };
 
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(payload, { expiresIn: '1d' });
   }
 }
