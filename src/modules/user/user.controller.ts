@@ -9,6 +9,7 @@ import {
   Delete,
   HttpException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UpdateUserDto } from './dto/update-user-dto';
+import { PaginationDto } from './dto/pagination-dto';
 
 @Controller('users')
 export class UserController {
@@ -27,8 +29,11 @@ export class UserController {
   @Get()
   @SkipThrottle()
   @Roles('superadmin', 'admin', 'moderator')
-  async getAllUsers(@AuthUser() user): Promise<any> {
-    const users = await this.userService.findAll(user.id);
+  async getAllUsers(
+    @AuthUser() user,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<any> {
+    const users = await this.userService.findAll(user.id, paginationDto);
 
     if (users.length === 0) {
       return {

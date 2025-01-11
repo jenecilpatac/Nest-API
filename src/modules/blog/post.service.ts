@@ -39,6 +39,7 @@ export class PostService {
               select: {
                 id: true,
                 name: true,
+                username: true,
                 profile_pictures: {
                   select: {
                     isSet: true,
@@ -60,6 +61,7 @@ export class PostService {
             user: {
               select: {
                 name: true,
+                username: true,
                 profile_pictures: {
                   select: {
                     isSet: true,

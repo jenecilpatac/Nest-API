@@ -4,6 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { users } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user-dto';
+import { PaginationDto } from './dto/pagination-dto';
+import { DEFAULT_PAGE_SIZE } from '../../common/utils/constants';
 
 @Injectable()
 export class UserService {
@@ -30,8 +32,13 @@ export class UserService {
     });
   }
 
-  findAll(userId: string): Promise<users[]> {
-    return this.prisma.users.findMany({
+  async findAll(userId: string, paginationDto: PaginationDto): Promise<any> {
+    const users = await this.prisma.users.findMany({
+      skip: parseInt(
+        ((paginationDto.skip - 1) *
+          (paginationDto.take ?? DEFAULT_PAGE_SIZE)) as any,
+      ),
+      take: parseInt(paginationDto.take ?? (DEFAULT_PAGE_SIZE as any)),
       where: {
         id: {
           not: userId,
@@ -44,6 +51,19 @@ export class UserService {
         roles: true,
       },
     });
+
+    const total = await this.prisma.users.count({
+      where: {
+        id: {
+          not: userId,
+        },
+      },
+    });
+
+    return {
+      users,
+      total,
+    };
   }
 
   async hashPassword(password: string): Promise<string> {

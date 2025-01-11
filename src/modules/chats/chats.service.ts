@@ -9,7 +9,9 @@ export class ChatsService {
   getAllChats() {
     return this.prisma.chats.findMany({
       include: {
-        messages: true,
+        messages: {
+          take: 20,
+        },
       },
     });
   }

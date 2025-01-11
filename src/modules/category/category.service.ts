@@ -57,6 +57,7 @@ export class CategoryService {
                 user: {
                   select: {
                     name: true,
+                    username: true,
                     profile_pictures: {
                       select: {
                         isSet: true,
@@ -78,6 +79,7 @@ export class CategoryService {
                 user: {
                   select: {
                     name: true,
+                    username: true,
                     profile_pictures: {
                       select: {
                         isSet: true,
