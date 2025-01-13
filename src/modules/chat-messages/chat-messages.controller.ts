@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -12,8 +12,8 @@ export class ChatMessagesController {
   @Get('public-messages')
   @UseGuards(JwtAuthGuard)
   @SkipThrottle()
-  findAll() {
-    return this.chatMessagesService.findAll();
+  async findAll(@Query() query) {
+    return await this.chatMessagesService.findAll(query.take);
   }
 
   @Post('send-public-message')

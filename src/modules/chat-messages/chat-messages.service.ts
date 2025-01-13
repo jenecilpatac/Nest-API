@@ -30,11 +30,12 @@ export class ChatMessagesService {
     });
   }
 
-  async findAll() {
+  async findAll(take: string) {
     const messages = await this.prisma.messages.findMany({
       where: {
         chatId: null,
       },
+      take: parseInt(take),
       include: {
         sentBy: {
           select: {
@@ -56,7 +57,17 @@ export class ChatMessagesService {
         createdAt: 'desc',
       },
     });
-    return messages;
+
+    const totalData = await this.prisma.messages.count({
+      where: {
+        chatId: null,
+      },
+    });
+
+    return {
+      messages,
+      totalData,
+    };
   }
 
   findOne(id: number) {

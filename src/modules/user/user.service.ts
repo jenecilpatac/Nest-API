@@ -11,11 +11,12 @@ import { DEFAULT_PAGE_SIZE } from '../../common/utils/constants';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  getAll() {
-    return this.prisma.users.findMany({
+  async getAll(take: any, userId: string) {
+    const users = await this.prisma.users.findMany({
       orderBy: {
         createdAt: 'desc',
       },
+      take: parseInt(take),
       include: {
         profile_pictures: {
           select: {
@@ -30,6 +31,13 @@ export class UserService {
         receiverChats: true,
       },
     });
+
+    const totalData = await this.prisma.users.count();
+
+    return {
+      users,
+      totalData,
+    };
   }
 
   async findAll(userId: string, paginationDto: PaginationDto): Promise<any> {
@@ -82,7 +90,7 @@ export class UserService {
         password: hashedPassword,
         roles: {
           connect: {
-            id: parseInt(role, 10),
+            id: parseInt(role),
           },
         },
         emailVerifiedAt: new Date(),
@@ -275,7 +283,7 @@ export class UserService {
       username: username,
       roles: {
         set: {
-          id: parseInt(role, 10),
+          id: parseInt(role),
         },
       },
     };

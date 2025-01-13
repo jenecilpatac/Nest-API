@@ -166,10 +166,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('to/chat')
   @SkipThrottle()
-  async getAllUsersChat() {
-    const users = await this.userService.getAll();
+  async getAllUsersChat(@Query() query, @AuthUser() user) {
+    const users = await this.userService.getAll(query.take, user.id);
 
-    if (users.length === 0) {
+    if (users.users.length === 0) {
       return {
         statusCode: 404,
         message: 'No users found',
@@ -178,7 +178,8 @@ export class UserController {
     return {
       statusCode: 200,
       message: 'Users fetched successfully',
-      users: users,
+      users: users.users,
+      totalData: users.totalData
     };
   }
 

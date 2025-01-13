@@ -4,7 +4,7 @@ import {
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
@@ -15,7 +15,8 @@ export class ChatGateway {
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('sendMessage')
-  handleSendMessage(client: Socket, @MessageBody() payload: string): void {
-    this.server.emit('sentMessage', payload);
+  handleSendMessage(@MessageBody() payload: any): void {
+    this.server.emit('sentMessage', payload.toRefresh);
+    this.server.emit('receiverId', payload.receiverId);
   }
 }

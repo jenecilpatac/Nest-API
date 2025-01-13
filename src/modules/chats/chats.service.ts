@@ -81,18 +81,24 @@ export class ChatsService {
     }
   }
 
-  getRecentChats(userId: any) {
+  getRecentChats(userId: any, take: any) {
     return this.prisma.chats.findMany({
       where: {
         OR: [{ receiverId: userId }, { senderId: userId }],
       },
       include: {
         messages: {
+          take: parseInt(take),
           include: {
             chat: true,
           },
           orderBy: {
             createdAt: 'desc',
+          },
+        },
+        _count: {
+          select: {
+            messages: true,
           },
         },
         sender: {

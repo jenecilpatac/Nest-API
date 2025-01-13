@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
@@ -32,8 +33,11 @@ export class ChatsController {
   @Get('conversations')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard)
-  async getUsersMessages(@AuthUser() user) {
-    const conversations = await this.chatsService.getRecentChats(user.id);
+  async getUsersMessages(@AuthUser() user, @Query() query) {
+    const conversations = await this.chatsService.getRecentChats(
+      user.id,
+      query.take,
+    );
 
     if (conversations.length === 0) {
       throw new HttpException('No conversation yet', HttpStatus.NOT_FOUND);
