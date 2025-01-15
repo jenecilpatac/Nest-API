@@ -1,20 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { DEFAULT_CHAT_MESSAGES_TAKE } from '../../common/utils/constants';
 
 @Injectable()
 export class ChatsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  getAllChats() {
-    return this.prisma.chats.findMany({
-      include: {
-        messages: {
-          take: 20,
-        },
-      },
-    });
-  }
 
   async create(
     CreateChatDto: CreateChatDto,
@@ -88,7 +79,7 @@ export class ChatsService {
       },
       include: {
         messages: {
-          take: parseInt(take),
+          take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
           include: {
             chat: true,
           },

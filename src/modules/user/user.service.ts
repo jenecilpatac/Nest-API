@@ -5,7 +5,10 @@ import { users } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user-dto';
 import { PaginationDto } from './dto/pagination-dto';
-import { DEFAULT_PAGE_SIZE } from '../../common/utils/constants';
+import {
+  DEFAULT_CHAT_MESSAGES_TAKE,
+  DEFAULT_PAGE_SIZE,
+} from '../../common/utils/constants';
 
 @Injectable()
 export class UserService {
@@ -16,7 +19,7 @@ export class UserService {
       orderBy: {
         createdAt: 'desc',
       },
-      take: parseInt(take),
+      take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
       include: {
         profile_pictures: {
           select: {
@@ -44,9 +47,9 @@ export class UserService {
     const users = await this.prisma.users.findMany({
       skip: parseInt(
         ((paginationDto.skip - 1) *
-          (paginationDto.take ?? DEFAULT_PAGE_SIZE)) as any,
+          (paginationDto.take || DEFAULT_PAGE_SIZE)) as any,
       ),
-      take: parseInt(paginationDto.take ?? (DEFAULT_PAGE_SIZE as any)),
+      take: parseInt(paginationDto.take as any) || DEFAULT_PAGE_SIZE,
       where: {
         id: {
           not: userId,
@@ -154,6 +157,22 @@ export class UserService {
           },
           include: {
             category: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                profile_pictures: {
+                  select: {
+                    isSet: true,
+                    avatar: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
             likes: {
               select: {
                 userId: true,

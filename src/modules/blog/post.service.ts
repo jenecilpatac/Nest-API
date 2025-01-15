@@ -2,13 +2,15 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { posts } from '@prisma/client';
+import { DEFAULT_POST_TAKE } from '../../common/utils/constants';
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<posts[]> {
-    return this.prisma.posts.findMany({
+  async findAll(take: any): Promise<any> {
+    const posts = await this.prisma.posts.findMany({
+      take: parseInt(take) || DEFAULT_POST_TAKE,
       where: {
         publishedAs: {
           notIn: ['private'],
@@ -80,6 +82,19 @@ export class PostService {
         },
       },
     });
+
+    const totalData = await this.prisma.posts.count({
+      where: {
+        publishedAs: {
+          notIn: ['private'],
+        },
+      },
+    });
+
+    return {
+      posts,
+      totalData,
+    };
   }
 
   create(createPostDto: CreatePostDto, userId: string): Promise<posts> {

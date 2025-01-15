@@ -1,8 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { categories } from '@prisma/client';
-import { ValidationError } from 'yup';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { DEFAULT_POST_TAKE } from '../../common/utils/constants';
 
 @Injectable()
 export class CategoryService {
@@ -31,10 +31,15 @@ export class CategoryService {
     });
   }
 
-  findBySlug(slug: string): Promise<any> {
-    return this.prisma.categories.findFirst({
+  async findBySlug(slug: string, take: any): Promise<any> {
+    const category = await this.prisma.categories.findFirst({
       where: { slug },
       include: {
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
         posts: {
           include: {
             user: {
@@ -100,8 +105,10 @@ export class CategoryService {
           orderBy: {
             createdAt: 'desc',
           },
+          take: parseInt(take) || DEFAULT_POST_TAKE,
         },
       },
     });
+    return category;
   }
 }

@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { DEFAULT_CHAT_MESSAGES_TAKE } from '../../common/utils/constants';
 
 @Injectable()
 export class ChatMessagesService {
@@ -35,7 +36,7 @@ export class ChatMessagesService {
       where: {
         chatId: null,
       },
-      take: parseInt(take),
+      take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
       include: {
         sentBy: {
           select: {

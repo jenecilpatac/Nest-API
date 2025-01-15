@@ -5,6 +5,7 @@ import {
   HttpException,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -51,8 +52,8 @@ export class CategoryController {
 
   @Get(':slug')
   @SkipThrottle()
-  async getCategoryBySlug(@Param('slug') slug: string) {
-    const category = await this.categoriesService.findBySlug(slug);
+  async getCategoryBySlug(@Param('slug') slug: string, @Query() query) {
+    const category = await this.categoriesService.findBySlug(slug, query.take);
 
     if (!category) {
       throw new HttpException(`Category "${slug}" not found.`, 404);
