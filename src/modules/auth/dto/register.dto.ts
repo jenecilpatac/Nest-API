@@ -7,6 +7,8 @@ import {
   Validate,
   MinLength,
   IsDate,
+  Min,
+  Max,
 } from 'class-validator';
 import { IsPasswordMatch } from '../../../common/pipes/confirm-password.validator';
 import { IsUnique } from '../../../common/pipes/unique.validator';
@@ -35,13 +37,20 @@ export class RegisterDto {
 
   @IsEmail()
   @IsNotEmpty({ message: 'Email field is required' })
-  @Validate(IsUnique, ['users', 'email'], { message: 'Email already taken' })
+  @Validate(IsUnique, ['users', 'email'], {
+    message: 'Email is already been taken',
+  })
   email?: string;
 
   @IsString()
+  @Length(5, 20, { message: 'Username must be between 5 and 20 characters' })
+  @Matches(/^[a-z0-9]+(\.[a-z0-9]+)?$/, {
+    message:
+      'Username can only contain lowercase letters, numbers, and at most one dot',
+  })
   @IsNotEmpty({ message: 'Username field is required' })
   @Validate(IsUnique, ['users', 'username'], {
-    message: 'Username already taken',
+    message: 'Username is already been taken',
   })
   username?: string;
 
@@ -54,8 +63,7 @@ export class RegisterDto {
   @MinLength(6, {
     message: 'Confirmation Password must be at least 6 characters',
   })
-  
-  @IsPasswordMatch(('password'), { message: 'Passwords do not match' })
+  @IsPasswordMatch('password', { message: 'Passwords do not match' })
   @IsString()
   confirmPassword: string;
 }

@@ -9,6 +9,7 @@ import {
   Delete,
   HttpException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,19 +19,21 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UpdateUserDto } from './dto/update-user-dto';
+import { PaginationDto } from './dto/pagination-dto';
 
 @Controller('users')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @SkipThrottle()
   @Roles('superadmin', 'admin', 'moderator')
-  async getAllUsers(@AuthUser() user): Promise<any> {
-    const users = await this.userService.findAll(user.id);
+  async getAllUsers(
+    @AuthUser() user,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<any> {
+    const users = await this.userService.findAll(user.id, paginationDto);
 
     if (users.length === 0) {
       return {
@@ -63,6 +66,23 @@ export class UserController {
   @SkipThrottle()
   async getUserById(@Param('id') id: string): Promise<any> {
     const user = await this.userService.findById(id);
+    if (!user) {
+      return {
+        statusCode: 404,
+        message: 'No user found on this id',
+      };
+    }
+    return {
+      statusCode: 200,
+      message: 'User fetched successfully',
+      user: user,
+    };
+  }
+
+  @Get('for/seo/:id')
+  @SkipThrottle()
+  async getUserByIdForSeo(@Param('id') id: string): Promise<any> {
+    const user = await this.userService.findForSeo(id);
     if (!user) {
       return {
         statusCode: 404,
@@ -141,5 +161,40 @@ export class UserController {
       message: 'User updated successfully',
       user,
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('to/chat')
+  @SkipThrottle()
+  async getAllUsersChat(@Query() query, @AuthUser() user) {
+    const users = await this.userService.getAll(query.take, user.id);
+
+    if (users.users.length === 0) {
+      return {
+        statusCode: 404,
+        message: 'No users found',
+      };
+    }
+    return {
+      statusCode: 200,
+      message: 'Users fetched successfully',
+      users: users.users,
+      totalData: users.totalData
+    };
+  }
+
+  @SkipThrottle()
+  @Get('profile/:username')
+  async getUserProfile(@Param('username') username) {
+    const user = await this.userService.findByUserName(username);
+
+    if (!user) {
+      throw new HttpException(
+        'Sorry this is not available right now',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    throw new HttpException(user, HttpStatus.OK);
   }
 }

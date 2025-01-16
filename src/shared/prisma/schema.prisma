@@ -36,11 +36,11 @@ model users {
   phoneNumber      String?
   email            String?            @unique
   username         String?            @unique
-  emailVerifiedAt  DateTime?          @db.Timestamp(6)
+  emailVerifiedAt  DateTime?          @db.Timestamptz(6)
   password         String?
   rememberToken    String?            @unique
-  createdAt        DateTime           @default(now()) @db.Timestamp(6)
-  updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt        DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
   provider         String?
   gender           gender?            @default(PreferNotToSay)
   providerId       String?            @unique
@@ -53,6 +53,9 @@ model users {
   cover_photos     cover_photos[]
   likes            likes[]
   comments         comments[]
+  senderChats      chats[]            @relation("SenderChats")
+  receiverChats    chats[]            @relation("ReceiverChats")
+  messages         messages[]
 }
 
 model roles {
@@ -66,8 +69,8 @@ model categories {
   categoryName String   @unique @db.VarChar(255)
   description  String?
   slug         String?  @db.VarChar(255)
-  createdAt    DateTime @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   posts        posts[]  @relation("posts")
 }
 
@@ -77,10 +80,9 @@ model posts {
   userId      String?
   categoryId  Int?
   publishedAs privacy     @default(public)
-  title       String?
   description String?
-  createdAt   DateTime    @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
   category    categories? @relation("posts", fields: [categoryId], references: [id], onDelete: Restrict)
   user        users?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   likes       likes[]
@@ -93,8 +95,8 @@ model todos {
   title     String?
   content   String
   status    status   @default(pending)
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -105,8 +107,8 @@ model profile_pictures {
   isSet       Boolean?
   publishedAs privacy  @default(public)
   user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }
 
 model cover_photos {
@@ -116,8 +118,8 @@ model cover_photos {
   isSet       Boolean?
   publishedAs privacy  @default(public)
   user        users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }
 
 model likes {
@@ -126,8 +128,8 @@ model likes {
   postId    Int?
   post      posts?   @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updateAt  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }
 
 model comments {
@@ -137,6 +139,30 @@ model comments {
   comment   String?
   post      posts?   @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      users?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updateAt  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model chats {
+  id         Int        @id @default(autoincrement())
+  senderId   String?
+  receiverId String?
+  createdAt  DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  messages   messages[]
+  sender     users?     @relation("SenderChats", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   users?     @relation("ReceiverChats", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model messages {
+  id         Int      @id @default(autoincrement())
+  userId     String?
+  sentBy     users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId     Int?
+  content    String?
+  attachment String?
+  isSeen     Boolean? @default(false)
+  chat       chats?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }

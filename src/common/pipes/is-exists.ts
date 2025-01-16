@@ -15,7 +15,7 @@ export function IsExists(entity: string, field: string, validationOptions?: Vali
 
           if (!value) return true;
 
-          const id = parseInt(value, 10);
+          const id = parseInt(value);
 
           const record = await prisma[entity].findUnique({
             where: { [field]: value | id },

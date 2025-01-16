@@ -4,13 +4,52 @@ import * as bcrypt from 'bcrypt';
 import { users } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user-dto';
+import { PaginationDto } from './dto/pagination-dto';
+import {
+  DEFAULT_CHAT_MESSAGES_TAKE,
+  DEFAULT_PAGE_SIZE,
+} from '../../common/utils/constants';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(userId: string): Promise<users[]> {
-    return this.prisma.users.findMany({
+  async getAll(take: any, userId: string) {
+    const users = await this.prisma.users.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
+      include: {
+        profile_pictures: {
+          select: {
+            avatar: true,
+            isSet: true,
+          },
+          where: {
+            isSet: true,
+          },
+        },
+        senderChats: true,
+        receiverChats: true,
+      },
+    });
+
+    const totalData = await this.prisma.users.count();
+
+    return {
+      users,
+      totalData,
+    };
+  }
+
+  async findAll(userId: string, paginationDto: PaginationDto): Promise<any> {
+    const users = await this.prisma.users.findMany({
+      skip: parseInt(
+        ((paginationDto.skip - 1) *
+          (paginationDto.take || DEFAULT_PAGE_SIZE)) as any,
+      ),
+      take: parseInt(paginationDto.take as any) || DEFAULT_PAGE_SIZE,
       where: {
         id: {
           not: userId,
@@ -23,6 +62,19 @@ export class UserService {
         roles: true,
       },
     });
+
+    const total = await this.prisma.users.count({
+      where: {
+        id: {
+          not: userId,
+        },
+      },
+    });
+
+    return {
+      users,
+      total,
+    };
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -41,7 +93,7 @@ export class UserService {
         password: hashedPassword,
         roles: {
           connect: {
-            id: parseInt(role, 10),
+            id: parseInt(role),
           },
         },
         emailVerifiedAt: new Date(),
@@ -49,8 +101,31 @@ export class UserService {
     });
   }
 
-  async findById(id: string): Promise<(users & { roles: any }) | undefined> {
+  async findForSeo(id: string): Promise<any> {
     return this.prisma.users.findUnique({
+      where: { id },
+      select: {
+        name: true,
+        id: true,
+        address: true,
+        jobTitle: true,
+        phoneNumber: true,
+        bio: true,
+        profile_pictures: {
+          select: {
+            avatar: true,
+            isSet: true,
+          },
+          where: {
+            isSet: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findById(id: string): Promise<any> {
+    return await this.prisma.users.findUnique({
       where: { id },
       include: {
         roles: true,
@@ -61,11 +136,32 @@ export class UserService {
             },
           ],
         },
+      },
+    });
+  }
+
+  async findByUserName(username: string): Promise<users | undefined> {
+    return this.prisma.users.findUnique({
+      where: { username },
+      include: {
+        profile_pictures: {
+          orderBy: [
+            {
+              createdAt: 'desc',
+            },
+          ],
+        },
         posts: {
+          where: {
+            publishedAs: 'public',
+          },
           include: {
             category: true,
             user: {
-              include: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
                 profile_pictures: {
                   select: {
                     isSet: true,
@@ -127,12 +223,6 @@ export class UserService {
           },
         },
       },
-    });
-  }
-
-  async findByUserName(username: string): Promise<users | undefined> {
-    return this.prisma.users.findUnique({
-      where: { username },
     });
   }
 
@@ -212,7 +302,7 @@ export class UserService {
       username: username,
       roles: {
         set: {
-          id: parseInt(role, 10),
+          id: parseInt(role),
         },
       },
     };

@@ -31,8 +31,8 @@ export class PostController {
 
   @Get()
   @SkipThrottle()
-  async getAllPosts(): Promise<any> {
-    const posts = await this.postService.findAll();
+  async getAllPosts(@Query() query): Promise<any> {
+    const posts = await this.postService.findAll(query.take);
 
     if (posts.length === 0) {
       return {
@@ -45,7 +45,8 @@ export class PostController {
     return {
       statusCode: 200,
       message: 'Successfully fetched all posts',
-      posts: posts,
+      posts: posts.posts,
+      totalData: posts.totalData,
     };
   }
 
@@ -164,5 +165,12 @@ export class PostController {
       statusCode: 201,
       message: 'Post like action processed successfully',
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  @Get('own/user-posts')
+  async getuserPosts(@AuthUser() user) {
+    return await this.postService.userPosts(user.id);
   }
 }
