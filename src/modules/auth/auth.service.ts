@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
+import emailVerification from '../../shared/templates/email-verification';
 
 @Injectable()
 export class AuthService {
@@ -98,15 +99,16 @@ export class AuthService {
       },
     });
 
+    const mailData = emailVerification({
+      name: registerDto.name,
+      verificationLink: `${process.env.BACKEND_CALLBACK_URL}/email/${user.id}/email-verification`,
+      from: process.env.MAILER_FROM,
+    });
+
     const mailerOptions = {
       to: registerDto.email,
       subject: 'Email Verification',
-      template: './email-verification',
-      context: {
-        name: registerDto.name,
-        verificationLink: `${process.env.BACKEND_CALLBACK_URL}/email/${user.id}/email-verification`,
-        from: process.env.MAILER_FROM,
-      },
+      html: mailData,
     };
 
     await this.emailService.sendEmail(mailerOptions);

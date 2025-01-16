@@ -37,13 +37,16 @@ export class RegisterDto {
 
   @IsEmail()
   @IsNotEmpty({ message: 'Email field is required' })
-  @Validate(IsUnique, ['users', 'email'], { message: 'Email is already been taken' })
+  @Validate(IsUnique, ['users', 'email'], {
+    message: 'Email is already been taken',
+  })
   email?: string;
 
   @IsString()
   @Length(5, 20, { message: 'Username must be between 5 and 20 characters' })
-  @Matches(/^[a-z]+(\.[a-z]+)?$/, {
-    message: 'Username can only contain lowercase letters and at most one dot',
+  @Matches(/^[a-z0-9]+(\.[a-z0-9]+)?$/, {
+    message:
+      'Username can only contain lowercase letters, numbers, and at most one dot',
   })
   @IsNotEmpty({ message: 'Username field is required' })
   @Validate(IsUnique, ['users', 'username'], {
