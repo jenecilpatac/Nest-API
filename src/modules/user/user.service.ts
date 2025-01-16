@@ -16,9 +16,6 @@ export class UserService {
 
   async getAll(take: any, userId: string) {
     const users = await this.prisma.users.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
       take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
       include: {
         profile_pictures: {
@@ -32,13 +29,26 @@ export class UserService {
         },
         senderChats: true,
         receiverChats: true,
+        _count: {
+          select: {
+            messages: {
+              where: {
+                chatId: null,
+              },
+            },
+          },
+        },
       },
     });
 
     const totalData = await this.prisma.users.count();
 
+    const sortedUsers = users.sort(
+      (a, b) => b._count.messages - a._count.messages,
+    );
+
     return {
-      users,
+      users: sortedUsers,
       totalData,
     };
   }
