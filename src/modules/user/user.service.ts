@@ -14,9 +14,27 @@ import {
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async getAll(take: any, userId: string) {
+  async getAll(query: any, userId: string) {
+    const { take, searchTerm } = query;
+
     const users = await this.prisma.users.findMany({
       take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
       include: {
         profile_pictures: {
           select: {
@@ -38,18 +56,52 @@ export class UserService {
             },
           },
         },
+        messages: {
+          where: {
+            chatId: null,
+          },
+        },
+      },
+      orderBy: {
+        messages: {
+          _count: 'desc',
+        },
       },
     });
 
-    const totalData = await this.prisma.users.count();
+    const totalData = await this.prisma.users.count({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
+    });
 
-    const sortedUsers = users.sort(
-      (a, b) => b._count.messages - a._count.messages,
-    );
+    const totalUsersChatted = await this.prisma.users.count({
+      where: {
+        messages: {
+          some: {
+            chatId: null,
+          },
+        },
+      },
+    });
 
     return {
-      users: sortedUsers,
+      users,
       totalData,
+      totalUsersChatted,
     };
   }
 

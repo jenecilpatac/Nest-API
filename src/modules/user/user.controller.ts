@@ -167,7 +167,7 @@ export class UserController {
   @Get('to/chat')
   @SkipThrottle()
   async getAllUsersChat(@Query() query, @AuthUser() user) {
-    const users = await this.userService.getAll(query.take, user.id);
+    const users = await this.userService.getAll(query, user.id);
 
     if (users.users.length === 0) {
       return {
@@ -179,7 +179,8 @@ export class UserController {
       statusCode: 200,
       message: 'Users fetched successfully',
       users: users.users,
-      totalData: users.totalData
+      totalData: users.totalData,
+      totalUsersChatted: users.totalUsersChatted,
     };
   }
 

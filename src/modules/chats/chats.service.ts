@@ -72,14 +72,23 @@ export class ChatsService {
     }
   }
 
-  getRecentChats(userId: any, take: any) {
-    return this.prisma.chats.findMany({
+  async getRecentChats(userId: any, query: any) {
+    const { take, searchTerm, takeMessages }: any = query;
+    const chats = await this.prisma.chats.findMany({
       where: {
-        OR: [{ receiverId: userId }, { senderId: userId }],
+        OR: [
+          {
+            receiverId: userId,
+          },
+          {
+            senderId: userId,
+          },
+        ],
       },
+      take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
       include: {
         messages: {
-          take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
+          take: parseInt(takeMessages) || DEFAULT_CHAT_MESSAGES_TAKE,
           include: {
             chat: true,
           },
@@ -127,5 +136,93 @@ export class ChatsService {
         updatedAt: 'desc',
       },
     });
+
+    const searchedData = await this.prisma.users.findMany({
+      take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
+      include: {
+        profile_pictures: {
+          select: {
+            avatar: true,
+            isSet: true,
+          },
+          where: {
+            isSet: true,
+          },
+        },
+        senderChats: true,
+        receiverChats: true,
+        _count: {
+          select: {
+            messages: {
+              where: {
+                chatId: {
+                  not: null,
+                },
+              },
+            },
+          },
+        },
+        messages: {
+          where: {
+            chatId: {
+              not: null,
+            },
+          },
+        },
+      },
+      orderBy: {
+        messages: {
+          _count: 'desc',
+        },
+      },
+    });
+
+    const totalSearchedData = await this.prisma.users.count({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
+    });
+
+    const totalConvosData = await this.prisma.chats.count({
+      where: {
+        OR: [{ receiverId: userId }, { senderId: userId }],
+      },
+    });
+
+    return {
+      chats,
+      searchedData,
+      totalSearchedData,
+      totalConvosData,
+    };
   }
 }
