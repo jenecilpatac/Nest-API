@@ -111,4 +111,10 @@ export class CategoryService {
     });
     return category;
   }
+
+  delete(id: number) {
+    return this.prisma.categories.delete({
+      where: { id },
+    });
+  }
 }
