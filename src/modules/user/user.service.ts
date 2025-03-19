@@ -14,12 +14,27 @@ import {
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async getAll(take: any, userId: string) {
+  async getAll(query: any, userId: string) {
+    const { take, searchTerm } = query;
+
     const users = await this.prisma.users.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
       take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
       include: {
         profile_pictures: {
           select: {
@@ -32,14 +47,61 @@ export class UserService {
         },
         senderChats: true,
         receiverChats: true,
+        _count: {
+          select: {
+            messages: {
+              where: {
+                chatId: null,
+              },
+            },
+          },
+        },
+        messages: {
+          where: {
+            chatId: null,
+          },
+        },
+      },
+      orderBy: {
+        messages: {
+          _count: 'desc',
+        },
       },
     });
 
-    const totalData = await this.prisma.users.count();
+    const totalData = await this.prisma.users.count({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: searchTerm === 'Anonymous' ? null : undefined,
+          },
+          {
+            name: searchTerm === '' ? '' : undefined,
+          },
+        ],
+      },
+    });
+
+    const totalUsersChatted = await this.prisma.users.count({
+      where: {
+        messages: {
+          some: {
+            chatId: null,
+          },
+        },
+      },
+    });
 
     return {
       users,
       totalData,
+      totalUsersChatted,
     };
   }
 

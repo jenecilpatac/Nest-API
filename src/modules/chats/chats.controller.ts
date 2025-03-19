@@ -36,16 +36,19 @@ export class ChatsController {
   async getUsersMessages(@AuthUser() user, @Query() query) {
     const conversations = await this.chatsService.getRecentChats(
       user.id,
-      query.take,
+      query,
     );
 
-    if (conversations.length === 0) {
+    if (conversations?.chats?.length === 0) {
       throw new HttpException('No conversation yet', HttpStatus.NOT_FOUND);
     }
 
     return {
       statusCode: HttpStatus.OK,
-      conversations,
+      conversations: conversations.chats,
+      totalSearchedData: conversations.totalSearchedData,
+      totalConvosData: conversations.totalConvosData,
+      searchedData: conversations.searchedData,
     };
   }
 }

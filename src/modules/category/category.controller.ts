@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -71,6 +72,19 @@ export class CategoryController {
       statusCode: 200,
       message: 'Category fetched successfully',
       category,
+    };
+  }
+
+  @Delete(':id')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('superadmin', 'admin', 'moderator')
+  async deleteCategory(@Param('id') id: number) {
+    const category = await this.categoriesService.delete(id);
+
+    return {
+      statusCode: 200,
+      message: `Category ${category.categoryName} deleted successfully`,
     };
   }
 }
