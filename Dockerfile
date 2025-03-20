@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y python3 g++ make && rm -rf /var/lib/apt/lists/*
 
 # Copy package.json and pnpm-lock.yaml (pnpm's lock file)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install pnpm globally
 RUN npm install -g pnpm
