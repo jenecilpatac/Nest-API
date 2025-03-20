@@ -15,7 +15,8 @@ RUN pnpm install
 
 # Copy the entire app code
 COPY . .
-
+# Ensure bcrypt and other native dependencies are built correctly
+RUN pnpm rebuild bcrypt
 # Generate Prisma Client (requires schema.prisma to be present)
 RUN pnpm prisma generate
 
