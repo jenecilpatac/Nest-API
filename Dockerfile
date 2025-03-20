@@ -4,6 +4,9 @@ FROM node:18
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies required for bcrypt
+RUN apt-get update && apt-get install -y python3 g++ make && rm -rf /var/lib/apt/lists/*
+
 # Copy package.json and pnpm-lock.yaml (pnpm's lock file)
 COPY package.json pnpm-lock.yaml ./
 
