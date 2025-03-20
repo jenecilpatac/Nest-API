@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  server-blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server-blog
+    restart: unless-stopped
+    networks:
+      - nest-js
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET_KEY}  # Assuming JWT_SECRET is set in your .env
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+     - /home/webserver/uploads/blog-uploads:/app/storage
+
+
+  server-nginx-blog:
+    image: nginx:alpine
+    container_name: server-nginx-blog
+    restart: unless-stopped
+    ports:
+      - "2002:2002"
+    networks:
+      - nest-js
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+
+networks:
+  nest-js:
+    driver: bridge
