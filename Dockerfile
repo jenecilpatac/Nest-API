@@ -13,6 +13,9 @@ RUN npm install -g pnpm
 # Install dependencies using pnpm
 RUN pnpm install
 
+RUN pnpm install express
+
+
 # Copy the entire app code
 COPY . .
 
