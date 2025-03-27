@@ -41,6 +41,11 @@ export class CategoryService {
           },
         },
         posts: {
+          where: {
+            publishedAs: {
+              notIn: ['private'],
+            }
+          },
           include: {
             user: {
               include: {
