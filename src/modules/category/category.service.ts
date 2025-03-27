@@ -37,7 +37,13 @@ export class CategoryService {
       include: {
         _count: {
           select: {
-            posts: true,
+            posts: {
+              where: {
+                publishedAs: {
+                  notIn: ['private'],
+                }
+              }
+            },
           },
         },
         posts: {
