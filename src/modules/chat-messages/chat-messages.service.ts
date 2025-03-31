@@ -82,4 +82,19 @@ export class ChatMessagesService {
   remove(id: number) {
     return `This action removes a #${id} chatMessage`;
   }
+
+  async seenMessage(receiverId: string, chatId: number) {
+    const messagesToSeen = await this.prisma.messages.updateMany({
+      where: {
+        chatId,
+        userId: receiverId,
+        isSeen: false,
+      },
+      data: {
+        isSeen: true,
+      },
+    });
+
+    return { messagesToSeen };
+  }
 }
