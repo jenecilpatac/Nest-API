@@ -90,7 +90,25 @@ export class ChatsService {
         messages: {
           take: parseInt(takeMessages) || DEFAULT_CHAT_MESSAGES_TAKE,
           include: {
-            chat: true,
+            chat: {
+              include: {
+                _count: {
+                  select: {
+                    messages: {
+                      where: {
+                        isSeen: false,
+                        chatId: {
+                          not: null,
+                        },
+                        userId: {
+                          not: userId,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
