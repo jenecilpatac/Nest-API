@@ -18,5 +18,6 @@ export class ChatGateway {
   handleSendMessage(@MessageBody() payload: any): void {
     this.server.emit('sentMessage', payload.toRefresh);
     this.server.emit('receiverId', payload.receiverId);
+    this.server.emit('isSeenForSentMessage', payload.isSeenForSentMessage);
   }
 }
