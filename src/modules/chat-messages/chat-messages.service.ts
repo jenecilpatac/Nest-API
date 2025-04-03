@@ -3,6 +3,7 @@ import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { DEFAULT_CHAT_MESSAGES_TAKE } from '../../common/utils/constants';
+import { getLinkPreview } from 'link-preview-js';
 
 @Injectable()
 export class ChatMessagesService {
@@ -31,7 +32,9 @@ export class ChatMessagesService {
     });
   }
 
-  async findAll(take: string) {
+  async findAll(params: any) {
+    const { take } = params;
+
     const messages = await this.prisma.messages.findMany({
       where: {
         chatId: null,
@@ -96,5 +99,24 @@ export class ChatMessagesService {
     });
 
     return { messagesToSeen };
+  }
+
+  async linkPreview(previewData: any) {
+    const previews = await Promise.all(
+      previewData.map(async ({ link, messageId }) => {
+        try {
+          const data = await getLinkPreview(link, {
+            followRedirects: 'follow',
+            timeout: 5000,
+          });
+          return { ...data, messageId };
+        } catch (error) {
+          console.error(`Error fetching preview for ${link}:`, error);
+          return { error: 'Failed to fetch preview', link, messageId };
+        }
+      }),
+    );
+
+    return { linkPreviews: previews };
   }
 }

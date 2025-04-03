@@ -110,6 +110,9 @@ importers:
       ioredis:
         specifier: ^5.6.0
         version: 5.6.0
+      link-preview-js:
+        specifier: ^3.0.14
+        version: 3.0.14
       multer:
         specifier: 1.4.5-lts.1
         version: 1.4.5-lts.1
@@ -1789,6 +1792,10 @@ packages:
   cheerio-select@2.1.0:
     resolution: {integrity: sha512-9v9kG0LvzrlcungtnJtpGNxY+fzECQKhK4EGJX2vByejiMX84MFNQw4UxPJl3bFbTMw+Dfs37XaIkCwTZfLh4g==}
 
+  cheerio@1.0.0-rc.11:
+    resolution: {integrity: sha512-bQwNaDIBKID5ts/DsdhxrjqFXYfLw4ste+wMKqWA8DyKcS4qwsPP4Bk8ZNaTJjvpiX/qW3BT4sU7d6Bh5i+dag==}
+    engines: {node: '>= 6'}
+
   cheerio@1.0.0-rc.12:
     resolution: {integrity: sha512-VqR8m68vM46BNnuZ5NtnGBKIE/DfN0cRIzg9n40EIq9NOv90ayxLBXA8fXC5gquFRGJSTRqBq25Jt2ECLR431Q==}
     engines: {node: '>= 6'}
@@ -3128,6 +3135,10 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+  link-preview-js@3.0.14:
+    resolution: {integrity: sha512-BAGZGCogqsWfF3msPt0c6DXr4+4zv7fregAxPioFYZJKoQEbKhJOhmu7VQjZmtKd1VRQ6CbL80Ok2KhpIuWJnQ==}
+    engines: {node: '>=18'}
+
   linkify-it@5.0.0:
     resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
 
@@ -3889,6 +3900,9 @@ packages:
     resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
     engines: {node: '>=6'}
 
+  punycode@1.3.2:
+    resolution: {integrity: sha512-RofWgt/7fL5wP1Y7fxE7/EmTLzQVnB0ycyibJ0OOHIlJqTNzglYFxVwETOcIoJqJmpDXJ9xImDv+Fq34F/d4Dw==}
+
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -3903,6 +3917,11 @@ packages:
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
+
+  querystring@0.2.0:
+    resolution: {integrity: sha512-X/xY82scca2tau62i9mDyU9K+I+djTMUsvwf7xnUX5GLvVzgJybOJf4Y6o9Zx3oJK/LSXg5tTZBjwzqVPaPO2g==}
+    engines: {node: '>=0.4.x'}
+    deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -4599,6 +4618,9 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  url@0.11.0:
+    resolution: {integrity: sha512-kbailJa29QrtXnxgq+DdCEGlbTeYM2eJUxsz6vjZavrCYPMIFHMKQmSKYAIuUK2i7hgPm28a8piX5NTUtM/LKQ==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -6414,8 +6436,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  boolbase@1.0.0:
-    optional: true
+  boolbase@1.0.0: {}
 
   brace-expansion@1.1.11:
     dependencies:
@@ -6548,7 +6569,17 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       domutils: 3.2.2
-    optional: true
+
+  cheerio@1.0.0-rc.11:
+    dependencies:
+      cheerio-select: 2.1.0
+      dom-serializer: 2.0.0
+      domhandler: 5.0.3
+      domutils: 3.2.2
+      htmlparser2: 8.0.2
+      parse5: 7.2.1
+      parse5-htmlparser2-tree-adapter: 7.1.0
+      tslib: 2.8.1
 
   cheerio@1.0.0-rc.12:
     dependencies:
@@ -6763,10 +6794,8 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       nth-check: 2.1.1
-    optional: true
 
-  css-what@6.1.0:
-    optional: true
+  css-what@6.1.0: {}
 
   dayjs@1.11.13: {}
 
@@ -6851,10 +6880,8 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
-    optional: true
 
-  domelementtype@2.3.0:
-    optional: true
+  domelementtype@2.3.0: {}
 
   domhandler@3.3.0:
     dependencies:
@@ -6869,7 +6896,6 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
-    optional: true
 
   domutils@2.8.0:
     dependencies:
@@ -6883,7 +6909,6 @@ snapshots:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
-    optional: true
 
   dotenv-expand@10.0.0: {}
 
@@ -6958,8 +6983,7 @@ snapshots:
   entities@2.2.0:
     optional: true
 
-  entities@4.5.0:
-    optional: true
+  entities@4.5.0: {}
 
   error-ex@1.3.2:
     dependencies:
@@ -7604,7 +7628,6 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       entities: 4.5.0
-    optional: true
 
   htmlparser2@9.1.0:
     dependencies:
@@ -8308,6 +8331,11 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
+  link-preview-js@3.0.14:
+    dependencies:
+      cheerio: 1.0.0-rc.11
+      url: 0.11.0
+
   linkify-it@5.0.0:
     dependencies:
       uc.micro: 2.1.0
@@ -8912,7 +8940,6 @@ snapshots:
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
-    optional: true
 
   oauth@0.10.2: {}
 
@@ -9027,12 +9054,10 @@ snapshots:
     dependencies:
       domhandler: 5.0.3
       parse5: 7.2.1
-    optional: true
 
   parse5@7.2.1:
     dependencies:
       entities: 4.5.0
-    optional: true
 
   parseley@0.12.1:
     dependencies:
@@ -9338,6 +9363,8 @@ snapshots:
   punycode.js@2.3.1:
     optional: true
 
+  punycode@1.3.2: {}
+
   punycode@2.3.1: {}
 
   pure-rand@6.1.0: {}
@@ -9349,6 +9376,8 @@ snapshots:
   qs@6.14.0:
     dependencies:
       side-channel: 1.1.0
+
+  querystring@0.2.0: {}
 
   queue-microtask@1.2.3: {}
 
@@ -10012,6 +10041,11 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  url@0.11.0:
+    dependencies:
+      punycode: 1.3.2
+      querystring: 0.2.0
 
   util-deprecate@1.0.2: {}
 

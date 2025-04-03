@@ -74,6 +74,7 @@ export class ChatsService {
 
   async getRecentChats(userId: any, query: any) {
     const { take, searchTerm, takeMessages }: any = query;
+
     const chats = await this.prisma.chats.findMany({
       where: {
         OR: [
