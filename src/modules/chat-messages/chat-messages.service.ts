@@ -108,6 +108,10 @@ export class ChatMessagesService {
           const data = await getLinkPreview(link, {
             followRedirects: 'follow',
             timeout: 5000,
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+            },
           });
           return { ...data, messageId };
         } catch (error) {
