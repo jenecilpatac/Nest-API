@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
@@ -24,7 +25,7 @@ export class ChatMessagesController {
   @UseGuards(JwtAuthGuard)
   @SkipThrottle()
   async findAll(@Query() query) {
-    return await this.chatMessagesService.findAll(query.take);
+    return await this.chatMessagesService.findAll(query);
   }
 
   @Post('send-public-message')
@@ -51,5 +52,11 @@ export class ChatMessagesController {
       message: 'Messages seen successfully',
       data: isSeenMessage.messagesToSeen,
     };
+  }
+
+  @Post('link-preview')
+  @SkipThrottle()
+  async getPreview(@Body("previewData") previewData) {
+    return this.chatMessagesService.linkPreview(previewData);
   }
 }
