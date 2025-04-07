@@ -20,4 +20,11 @@ export class ChatGateway {
     this.server.emit('receiverId', payload.receiverId);
     this.server.emit('isSeenForSentMessage', payload.isSeenForSentMessage);
   }
+
+  @SubscribeMessage('userTyping')
+  handleUserTyping(@MessageBody() payload: any): void {
+    const { chatId, user } = payload;
+
+    this.server.emit('userTypeToChat', { chatId, user });
+  }
 }
