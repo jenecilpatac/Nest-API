@@ -23,8 +23,15 @@ export class ChatGateway {
 
   @SubscribeMessage('userTyping')
   handleUserTyping(@MessageBody() payload: any): void {
-    const { chatId, user } = payload;
+    const { chatReference, user } = payload;
 
-    this.server.emit('userTypeToChat', { chatId, user });
+    this.server.emit('userTypeToChat', { chatReference, user });
+  }
+
+  @SubscribeMessage('userTypingPrivate')
+  handleUserTypingPrivate(@MessageBody() payload: any): void {
+    const { receiverId, senderId, user } = payload;
+
+    this.server.emit('userTypeToChatPrivate', { receiverId, senderId, user });
   }
 }
