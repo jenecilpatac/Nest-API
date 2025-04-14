@@ -15,7 +15,8 @@ export class ChatMessagesGateway {
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('sendPublicMessage')
-  handleSendMessage(client: Socket, @MessageBody() payload: string): void {
-    this.server.emit('sentPublicMessage', payload);
+  handleSendMessage(client: Socket, @MessageBody() payload: any): void {
+    this.server.emit('sentPublicMessage', payload.toRefresh);
+    this.server.emit('publicSenderId', payload.publicSenderId);
   }
 }
