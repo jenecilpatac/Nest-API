@@ -15,7 +15,6 @@ RUN pnpm install
 
 RUN pnpm install express
 
-COPY .env .env
 # Copy the entire app code
 COPY . .
 
