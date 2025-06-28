@@ -19,7 +19,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
     volumes:
      - /home/webserver/uploads/blog-uploads:/app/storage
-     - /home/webserver/systems/testing/blog-app/Nest-API/.env:/app/.env
+     - /home/webserver/systems/blog-app/Nest-API/.env:/app/.env
+     #- /home/webserver/systems/testing/blog-app/Nest-API/.env:/app/.env
 
 
   server-nginx-blog:
