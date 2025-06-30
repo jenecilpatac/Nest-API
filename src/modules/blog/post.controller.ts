@@ -66,6 +66,7 @@ export class PostController {
     } else {
       try {
         for (const img of image) {
+          console.log('img:', img);
           await new ParseFilePipeBuilder()
             .addFileTypeValidator({
               fileType: /^image\//,
