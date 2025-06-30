@@ -50,81 +50,69 @@ export class PostController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('create-post')
-  @UseInterceptors(FilesInterceptor('image'))
-  @SkipThrottle()
-  async createPost(
-    @Body() createPostDto: CreatePostDto,
-    @AuthUser() user,
-    @UploadedFiles() image: Express.Multer.File[],
-  ): Promise<any> {
-    let imageFilenames: string[] = [];
+@UseGuards(JwtAuthGuard)
+@Post('create-post')
+@UseInterceptors(FilesInterceptor('image'))
+@SkipThrottle()
+async createPost(
+  @Body() createPostDto: CreatePostDto,
+  @AuthUser() user,
+  @UploadedFiles() image: Express.Multer.File[],
+): Promise<any> {
+  const imageFilenames: string[] = [];
 
-    if (!image || image.length === 0) {
-      createPostDto.image = [];
-    } else {
-      try {
-        for (const img of image) {
-          console.log('img:', img);
-          await new ParseFilePipeBuilder()
-            .addFileTypeValidator({
-              fileType: /^image\//,
-            })
-            .addMaxSizeValidator({
-              maxSize: 1000000,
-            })
-            .build({
-              errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-            })
-            .transform(img);
-          const normalizedPath = img.path.replace(/\\/g, '/');
-          imageFilenames.push(normalizedPath);
-        }
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/x-icon',
+  ];
+  const MAX_SIZE = 1_000_000; // 1MB
 
-        createPostDto.image = imageFilenames;
-      } catch (error) {
-        if (
-          error.response &&
-          error.message.includes(
-            'Validation failed (expected size is less than 1000000)',
-          )
-        ) {
-          throw new HttpException(
-            'File too large, only 1MB is allowed.',
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        } else if (
-          error.response &&
-          error.message.includes('Validation failed (expected type is image/*)')
-        ) {
-          throw new HttpException(
-            'Invalid image type, only jpeg, jpg, png, gif, webp are allowed.',
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        } else {
-          throw new HttpException(
-            `Invalid file type or size: ${error.message}`,
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        }
+  if (!image || image.length === 0) {
+    createPostDto.image = [];
+  } else {
+    for (const img of image) {
+      if (!allowedTypes.includes(img.mimetype)) {
+        throw new HttpException(
+          'Invalid image type. Only jpeg, jpg, png, gif, ico, webp are allowed.',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
       }
+
+      if (img.size > MAX_SIZE) {
+        throw new HttpException(
+          'File too large. Only 1MB is allowed.',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+
+      const normalizedPath = img.path.replace(/\\/g, '/');
+      imageFilenames.push(normalizedPath);
     }
 
-    const category = await this.categoryService.findById(
-      Number(createPostDto.categoryId),
-    );
-
-    if (!category) {
-      throw new HttpException('Category not found', 404);
-    }
-    const created = await this.postService.create(createPostDto, user.id);
-    return {
-      statusCode: 201,
-      message: 'Post added successfully',
-      created,
-    };
+    createPostDto.image = imageFilenames;
   }
+
+  const category = await this.categoryService.findById(
+    Number(createPostDto.categoryId),
+  );
+
+  if (!category) {
+    throw new HttpException('Category not found', 404);
+  }
+
+  const created = await this.postService.create(createPostDto, user.id);
+
+  return {
+    statusCode: 201,
+    message: 'Post added successfully',
+    created,
+  };
+}
+
 
   @Get(':id')
   @SkipThrottle()
