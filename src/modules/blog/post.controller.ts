@@ -68,7 +68,7 @@ export class PostController {
         for (const img of image) {
           await new ParseFilePipeBuilder()
             .addFileTypeValidator({
-              fileType: 'image/*',
+              fileType: /^image\//,
             })
             .addMaxSizeValidator({
               maxSize: 1000000,
