@@ -27,69 +27,58 @@ import { UpdatePersonalDetailsDto } from './dto/update-personal-details';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Post('upload-avatar')
-  @UseInterceptors(FileInterceptor('avatar'))
-  @SkipThrottle()
-  async create(
-    @Body() createProfileDto: CreateProfileDto,
-    @AuthUser() user,
-    @UploadedFile() avatar: Express.Multer.File,
-  ) {
-    try {
-      await new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'image/*',
-        })
-        .addMaxSizeValidator({
-          maxSize: 1000000,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        })
-        .transform(avatar);
-      const normalizedPath = avatar.path.replace(/\\/g, '/');
+@UseGuards(JwtAuthGuard)
+@Post('upload-avatar')
+@UseInterceptors(FileInterceptor('avatar'))
+@SkipThrottle()
+async create(
+  @Body() createProfileDto: CreateProfileDto,
+  @AuthUser() user,
+  @UploadedFile() avatar: Express.Multer.File,
+) {
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/x-icon',
+  ];
+  const MAX_SIZE = 1_000_000; // 1MB
 
-      createProfileDto.avatar = normalizedPath;
-    } catch (error) {
-      if (
-        error.response &&
-        error.message.includes(
-          'Validation failed (expected size is less than 1000000)',
-        )
-      ) {
-        throw new HttpException(
-          'File too large, only 1MB is allowed.',
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      } else if (
-        error.response &&
-        error.message.includes('Validation failed (expected type is image/*)')
-      ) {
-        throw new HttpException(
-          'Invalid image type, only jpeg, jpg, png, gif, ico, webp are allowed.',
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      } else {
-        throw new HttpException(
-          `Invalid file type or size: ${error.message}`,
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      }
-    }
-
-    const created = await this.profileService.addProfilePicture(
-      createProfileDto,
-      user.id,
-    );
-
-    return {
-      statusCode: 201,
-      message: 'Post added successfully',
-      created,
-    };
+  if (!avatar) {
+    throw new HttpException('No avatar uploaded.', HttpStatus.BAD_REQUEST);
   }
 
+  if (!allowedTypes.includes(avatar.mimetype)) {
+    throw new HttpException(
+      'Invalid image type. Only jpeg, jpg, png, gif, ico, webp are allowed.',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  if (avatar.size > MAX_SIZE) {
+    throw new HttpException(
+      'File too large. Only 1MB is allowed.',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  const normalizedPath = avatar.path.replace(/\\/g, '/');
+  createProfileDto.avatar = normalizedPath;
+
+  const created = await this.profileService.addProfilePicture(
+    createProfileDto,
+    user.id,
+  );
+
+  return {
+    statusCode: 201,
+    message: 'Profile picture uploaded successfully',
+    created,
+  };
+}
+  
   @Patch('update-bio')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard)
