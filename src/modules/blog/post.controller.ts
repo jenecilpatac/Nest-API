@@ -98,7 +98,7 @@ export class PostController {
           error.message.includes('Validation failed (expected type is image/*)')
         ) {
           throw new HttpException(
-            'Invalid image type, only jpeg, jpg, png, gif, ico, webp are allowed.',
+            'Invalid image type, only jpeg, jpg, png, gif, webp are allowed.',
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
         } else {
