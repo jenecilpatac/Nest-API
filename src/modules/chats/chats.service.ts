@@ -173,20 +173,31 @@ export class ChatsService {
         const parsedMessage = await Promise.all(
           messages.map(async (message: any) => {
             const link = parsedItem(message);
-            const data = link
-              ? await getLinkPreview(link, {
+
+            let previewData = null;
+
+            if (link) {
+              try {
+                previewData = await getLinkPreview(link, {
                   followRedirects: 'follow',
-                  timeout: 5000,
+                  timeout: 10000,
                   headers: {
                     'User-Agent':
                       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
                   },
-                })
-              : null;
+                });
+              } catch (error) {
+                console.warn(
+                  `Failed to fetch preview for ${link}:`,
+                  error.message,
+                );
+                previewData = null;
+              }
+            }
 
             return {
               ...message,
-              link: data ?? null,
+              link: previewData,
             };
           }),
         );
@@ -200,22 +211,17 @@ export class ChatsService {
 
     const searchedData = await this.prisma.users.findMany({
       take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
-      where: {
-        OR: [
-          {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            name: searchTerm === 'Anonymous' ? null : undefined,
-          },
-          {
-            name: searchTerm === '' ? '' : undefined,
-          },
-        ],
-      },
+      where:
+        searchTerm && 'anonymous'.includes(searchTerm.toLowerCase().trim())
+          ? { name: null }
+          : searchTerm
+            ? {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive',
+                },
+              }
+            : {},
       include: {
         profile_pictures: {
           select: {
