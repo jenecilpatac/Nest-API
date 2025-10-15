@@ -75,20 +75,28 @@ export class ChatMessagesService {
     const parsedMessages = await Promise.all(
       messages.map(async (message) => {
         const link = parsedItem(message);
-        const data = link
-          ? await getLinkPreview(link, {
+
+        let previewData = null;
+
+        if (link) {
+          try {
+            previewData = await getLinkPreview(link, {
               followRedirects: 'follow',
-              timeout: 5000,
+              timeout: 10000,
               headers: {
                 'User-Agent':
                   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
               },
-            })
-          : null;
+            });
+          } catch (error) {
+            console.warn(`Failed to fetch preview for ${link}:`, error.message);
+            previewData = null;
+          }
+        }
 
         return {
           ...message,
-          link: data ?? null,
+          link: previewData,
         };
       }),
     );
