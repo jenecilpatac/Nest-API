@@ -45,7 +45,7 @@ export class ChatsController {
 
     return {
       statusCode: HttpStatus.OK,
-      conversations: conversations.chats,
+      conversations: conversations.parsedChats,
       totalSearchedData: conversations.totalSearchedData,
       totalConvosData: conversations.totalConvosData,
       searchedData: conversations.searchedData,

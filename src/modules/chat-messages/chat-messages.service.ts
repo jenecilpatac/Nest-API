@@ -4,7 +4,6 @@ import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { DEFAULT_CHAT_MESSAGES_TAKE } from '../../common/utils/constants';
 import { getLinkPreview } from 'link-preview-js';
-
 @Injectable()
 export class ChatMessagesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -32,7 +31,7 @@ export class ChatMessagesService {
     });
   }
 
-  async findAll(params: any) {
+  async findAll(params: any): Promise<any> {
     const { take } = params;
 
     const messages = await this.prisma.messages.findMany({
@@ -62,6 +61,38 @@ export class ChatMessagesService {
       },
     });
 
+    function parsedItem(message: any) {
+      const urlPattern =
+        /\b(https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(?:\/[^\s]*)?|https?:\/\/(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?(?:\/[^\s]*)?|(?<!@)\b[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b(?!@))\b/g;
+      const contentFormat = message.content.match(urlPattern) || [];
+      const link = contentFormat[0]?.startsWith('http')
+        ? contentFormat[0]
+        : contentFormat[0] && `https://${contentFormat[0]}`;
+
+      return link;
+    }
+
+    const parsedMessages = await Promise.all(
+      messages.map(async (message) => {
+        const link = parsedItem(message);
+        const data = link
+          ? await getLinkPreview(link, {
+              followRedirects: 'follow',
+              timeout: 5000,
+              headers: {
+                'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+              },
+            })
+          : null;
+
+        return {
+          ...message,
+          link: data ?? null,
+        };
+      }),
+    );
+
     const totalData = await this.prisma.messages.count({
       where: {
         chatId: null,
@@ -69,7 +100,7 @@ export class ChatMessagesService {
     });
 
     return {
-      messages,
+      messages: parsedMessages,
       totalData,
     };
   }

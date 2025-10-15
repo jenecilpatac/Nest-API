@@ -1,18 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { useContainer } from 'class-validator';
-import * as passport from 'passport';
-import * as session from 'express-session';
-import * as cookieParser from 'cookie-parser';
+import passport from 'passport';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import * as path from 'path';
-import * as express from 'express';
+import path from 'path';
+import express from 'express';
 import { Response } from 'express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
