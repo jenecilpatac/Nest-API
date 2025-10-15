@@ -200,22 +200,17 @@ export class ChatsService {
 
     const searchedData = await this.prisma.users.findMany({
       take: parseInt(take) || DEFAULT_CHAT_MESSAGES_TAKE,
-      where: {
-        OR: [
-          {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            name: searchTerm === 'Anonymous' ? null : undefined,
-          },
-          {
-            name: searchTerm === '' ? '' : undefined,
-          },
-        ],
-      },
+      where:
+        searchTerm && 'anonymous'.includes(searchTerm.toLowerCase().trim())
+          ? { name: null }
+          : searchTerm
+            ? {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive',
+                },
+              }
+            : {},
       include: {
         profile_pictures: {
           select: {
