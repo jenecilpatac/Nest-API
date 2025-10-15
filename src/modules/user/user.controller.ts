@@ -168,6 +168,7 @@ export class UserController {
   @SkipThrottle()
   async getAllUsersChat(@Query() query, @AuthUser() user) {
     const users = await this.userService.getAll(query, user.id);
+    console.log(users);
 
     if (users.users.length === 0) {
       return {
