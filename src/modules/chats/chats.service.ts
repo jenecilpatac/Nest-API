@@ -180,8 +180,6 @@ export class ChatsService {
             isSet: true,
           },
         },
-        senderChats: true,
-        receiverChats: true,
         id: true,
         name: true,
       },

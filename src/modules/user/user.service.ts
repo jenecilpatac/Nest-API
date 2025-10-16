@@ -43,8 +43,6 @@ export class UserService {
             isSet: true,
           },
         },
-        senderChats: true,
-        receiverChats: true,
         _count: {
           select: {
             messages: {
