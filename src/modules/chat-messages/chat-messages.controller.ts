@@ -56,7 +56,29 @@ export class ChatMessagesController {
 
   @Post('link-preview')
   @SkipThrottle()
-  async getPreview(@Body("previewData") previewData) {
+  async getPreview(@Body('previewData') previewData) {
     return this.chatMessagesService.linkPreview(previewData);
+  }
+
+  @Get('private/:id/messages')
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard)
+  async getMessages(
+    @Param('id') userId: string,
+    @AuthUser() user,
+    @Query() query,
+  ) {
+    const messages = await this.chatMessagesService.privateMessages(
+      userId,
+      user.id,
+      query,
+    );
+
+    return {
+      status: 200,
+      message: 'Messages fetched successfully',
+      messages: messages.parsedChats,
+      totalConvosData: messages.totalConvosData,
+    };
   }
 }

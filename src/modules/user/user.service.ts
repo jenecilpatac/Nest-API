@@ -30,8 +30,11 @@ export class UserService {
                 },
               }
             : {},
-      include: {
+      select: {
+        id: true,
+        name: true,
         profile_pictures: {
+          take: 1,
           select: {
             avatar: true,
             isSet: true,
@@ -51,11 +54,6 @@ export class UserService {
             },
           },
         },
-        messages: {
-          where: {
-            chatId: null,
-          },
-        },
       },
       orderBy: {
         messages: {
@@ -65,22 +63,17 @@ export class UserService {
     });
 
     const totalData = await this.prisma.users.count({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            name: searchTerm === 'Anonymous' ? null : undefined,
-          },
-          {
-            name: searchTerm === '' ? '' : undefined,
-          },
-        ],
-      },
+      where:
+        searchTerm && 'anonymous'.includes(searchTerm.toLowerCase().trim())
+          ? { name: null }
+          : searchTerm
+            ? {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive',
+                },
+              }
+            : {},
     });
 
     const totalUsersChatted = await this.prisma.users.count({
