@@ -12,6 +12,7 @@ import {
   HttpStatus,
   HttpException,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -27,33 +28,26 @@ import { UpdatePersonalDetailsDto } from './dto/update-personal-details';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-@UseGuards(JwtAuthGuard)
-@Post('upload-avatar')
-@UseInterceptors(FileInterceptor('avatar'))
-@SkipThrottle()
-async create(
-  @Body() createProfileDto: CreateProfileDto,
-  @AuthUser() user,
-  @UploadedFile() avatar: Express.Multer.File,
-) {
-  const allowedTypes = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/x-icon',
-  ];
-  const MAX_SIZE = 1_000_000; // 1MB
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('avatar'))
+  @SkipThrottle()
+  async create(
+    @Body() createProfileDto: CreateProfileDto,
+    @AuthUser() user,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
+    if (!avatar) {
+      throw new BadRequestException('File is required');
+    }
 
-  if (!avatar) {
-    throw new HttpException('No avatar uploaded.', HttpStatus.BAD_REQUEST);
-  }
+    const normalizedPath = avatar.path.replace(/\\/g, '/');
 
-  if (!allowedTypes.includes(avatar.mimetype)) {
-    throw new HttpException(
-      'Invalid image type. Only jpeg, jpg, png, gif, ico, webp are allowed.',
-      HttpStatus.UNPROCESSABLE_ENTITY,
+    createProfileDto.avatar = normalizedPath;
+
+    const created = await this.profileService.addProfilePicture(
+      createProfileDto,
+      user.id,
     );
   }
 
