@@ -1,15 +1,31 @@
-FROM node:20.14.0-alpine
+# Use the Node.js image
+FROM node:18
 
+# Set working directory
 WORKDIR /app
 
+# Copy package.json and pnpm-lock.yaml (pnpm's lock file)
+COPY package.json ./
+
+# Install pnpm globally
 RUN npm install -g pnpm
 
+# Install dependencies using pnpm
+RUN pnpm install
+
+RUN pnpm install express
+
+# Copy the entire app code
 COPY . .
 
-RUN pnpm install --frozen-lockfile
+# Generate Prisma Client (requires schema.prisma to be present)
+RUN pnpm prisma generate
 
-RUN pnpm build
+# Build the NestJS application
+RUN pnpm run build
 
-EXPOSE 5004
+# Expose the port for the application
+EXPOSE 2002
 
-CMD ["pnpm", "start"]
+# Start the application
+CMD ["pnpm", "run", "start:prod"]
