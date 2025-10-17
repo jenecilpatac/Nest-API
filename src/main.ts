@@ -15,6 +15,7 @@ import path from 'path';
 import express from 'express';
 import { Response } from 'express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import bodyParser from 'body-parser';
 
 dotenv.config();
 
@@ -66,6 +67,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(bodyParser.json({ limit: '100mb' }));
+  app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
