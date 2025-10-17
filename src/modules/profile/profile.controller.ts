@@ -43,10 +43,8 @@ export class ProfileController {
 
     const normalizedPath = avatar.path.replace(/\\/g, '/');
 
-    createProfileDto.avatar = normalizedPath;
-
     const created = await this.profileService.addProfilePicture(
-      createProfileDto,
+      { ...createProfileDto, avatar: normalizedPath },
       user.id,
     );
 
