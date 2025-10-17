@@ -49,14 +49,30 @@ export class ProfileController {
       createProfileDto,
       user.id,
     );
-
-    return {
-      statusCode: 201,
-      message: 'Post added successfully',
-      created,
-    };
   }
 
+  if (avatar.size > MAX_SIZE) {
+    throw new HttpException(
+      'File too large. Only 1MB is allowed.',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
+  }
+
+  const normalizedPath = avatar.path.replace(/\\/g, '/');
+  createProfileDto.avatar = normalizedPath;
+
+  const created = await this.profileService.addProfilePicture(
+    createProfileDto,
+    user.id,
+  );
+
+  return {
+    statusCode: 201,
+    message: 'Profile picture uploaded successfully',
+    created,
+  };
+}
+  
   @Patch('update-bio')
   @SkipThrottle()
   @UseGuards(JwtAuthGuard)
