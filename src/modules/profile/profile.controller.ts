@@ -12,6 +12,7 @@ import {
   HttpStatus,
   HttpException,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -36,47 +37,13 @@ export class ProfileController {
     @AuthUser() user,
     @UploadedFile() avatar: Express.Multer.File,
   ) {
-    try {
-      await new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'image/*',
-        })
-        .addMaxSizeValidator({
-          maxSize: 1000000,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        })
-        .transform(avatar);
-      const normalizedPath = avatar.path.replace(/\\/g, '/');
-
-      createProfileDto.avatar = normalizedPath;
-    } catch (error) {
-      if (
-        error.response &&
-        error.message.includes(
-          'Validation failed (expected size is less than 1000000)',
-        )
-      ) {
-        throw new HttpException(
-          'File too large, only 1MB is allowed.',
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      } else if (
-        error.response &&
-        error.message.includes('Validation failed (expected type is image/*)')
-      ) {
-        throw new HttpException(
-          'Invalid image type, only jpeg, jpg, png, gif, ico, webp are allowed.',
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      } else {
-        throw new HttpException(
-          `Invalid file type or size: ${error.message}`,
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      }
+    if (!avatar) {
+      throw new BadRequestException('File is required');
     }
+
+    const normalizedPath = avatar.path.replace(/\\/g, '/');
+
+    createProfileDto.avatar = normalizedPath;
 
     const created = await this.profileService.addProfilePicture(
       createProfileDto,

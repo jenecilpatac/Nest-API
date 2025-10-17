@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Module } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Module,
+} from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import { MulterModule } from '@nestjs/platform-express';
@@ -16,28 +21,17 @@ import { PrismaModule } from '../prisma/prisma.module';
           cb(null, filename);
         },
       }),
-      fileFilter: (req, file, cb) => {
-        const allowedTypes = [
-          'image/jpeg',
-          'image/png',
-          'image/gif',
-          'image/webp',
-          'image/jpg',
-        ];
-
-        if (!allowedTypes.includes(file.mimetype)) {
-          return cb(
-            new HttpException(
-              'Invalid image type, only jpeg, jpg, png, gif, ico, webp are allowed.',
-              HttpStatus.UNPROCESSABLE_ENTITY,
-            ),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|bmp|webp)$/)) {
+          return callback(
+            new BadRequestException('Only image files are allowed!'),
             false,
           );
         }
-        cb(null, true);
+        callback(null, true);
       },
       limits: {
-        fileSize: 1 * 1024 * 1024,
+        fileSize: 5 * 1024 * 1024,
       },
     }),
   ],
