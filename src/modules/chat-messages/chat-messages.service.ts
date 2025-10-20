@@ -315,4 +315,26 @@ export class ChatMessagesService {
       totalConvosData,
     };
   }
+
+  async updateMessage(id: number, updateChatMessageDto: UpdateChatMessageDto) {
+    return await this.prisma.messages.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateChatMessageDto,
+      },
+    });
+  }
+
+  async deleteMessage(id: number) {
+    return await this.prisma.messages.update({
+      where: {
+        id,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+  }
 }

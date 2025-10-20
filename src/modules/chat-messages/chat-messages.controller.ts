@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -13,9 +14,10 @@ import {
 } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 
 @Controller('chat-messages')
 export class ChatMessagesController {
@@ -79,6 +81,35 @@ export class ChatMessagesController {
       message: 'Messages fetched successfully',
       messages: messages.parsedChats,
       totalConvosData: messages.totalConvosData,
+    };
+  }
+
+  @Patch('update/:id/message')
+  @Throttle({ default: { limit: 3, ttl: 5000 } })
+  @UseGuards(JwtAuthGuard)
+  async updateMessage(
+    @Param('id') id: string,
+    @Body() updateChatMessageDto: UpdateChatMessageDto,
+  ) {
+    await this.chatMessagesService.updateMessage(
+      parseInt(id),
+      updateChatMessageDto,
+    );
+
+    return {
+      status: 200,
+      message: 'Message updated successfully',
+    };
+  }
+
+  @Delete('delete/:id/message')
+  @UseGuards(JwtAuthGuard)
+  async deleteMessage(@Param('id') id: string) {
+    await this.chatMessagesService.deleteMessage(parseInt(id));
+
+    return {
+      status: 204,
+      message: 'Message deleted successfully',
     };
   }
 }

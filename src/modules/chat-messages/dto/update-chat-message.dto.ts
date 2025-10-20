@@ -1,6 +1,11 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChatMessageDto } from './create-chat-message.dto';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class UpdateChatMessageDto extends PartialType(CreateChatMessageDto) {
-  id: number;
+export class UpdateChatMessageDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Content field is required' })
+  content: string;
+
+  @IsOptional()
+  @IsString()
+  attachment?: string;
 }
