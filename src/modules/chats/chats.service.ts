@@ -211,10 +211,10 @@ export class ChatsService {
     });
 
     return {
-      parsedChats: chats,
+      parsedChats: searchTerm ? [] : chats,
       searchedData: searchTerm ? searchedData : [],
       totalSearchedData: searchTerm ? totalSearchedData : 0,
-      totalConvosData,
+      totalConvosData: searchTerm ? totalSearchedData : totalConvosData,
     };
   }
 }

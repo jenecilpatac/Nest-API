@@ -12,12 +12,14 @@ async function main() {
     data: {
       name: 'superadmin',
     },
+    skipDuplicates: true,
   });
 
   const adminRole = await prisma.roles.create({
     data: {
       name: 'admin',
     },
+    skipDuplicates: true,
   });
 
   const userRole = await prisma.roles.create({
@@ -34,6 +36,7 @@ async function main() {
 
   const user = await prisma.users.create({
     data: {
+      name: 'John Doe',
       username: 'johndoe',
       email: 'johndoe@gmail.com',
       password: hashedPassword,
@@ -46,6 +49,7 @@ async function main() {
 
   const admin = await prisma.users.create({
     data: {
+      name: 'Administrator',
       username: 'admin',
       email: 'admin@gmail.com',
       password: hashedPassword,
@@ -58,6 +62,7 @@ async function main() {
 
   const superadmin = await prisma.users.create({
     data: {
+      name: 'Super Administrator',
       username: 'superadmin',
       email: 'superadmin@gmail.com',
       password: hashedPassword,
@@ -70,6 +75,7 @@ async function main() {
 
   const moderator = await prisma.users.create({
     data: {
+      name: 'Moderator',
       username: 'moderator',
       email: 'moderator@example.com',
       password: hashedPassword,
@@ -79,6 +85,24 @@ async function main() {
       },
     },
   });
+
+  let number = 1;
+  const users = Array.from({ length: 50 }, () => ({
+    name: `User ${number++}`,
+    email: `user${number++}@gmail.com`,
+    username: `user${number++}`,
+    password: hashedPassword,
+    emailVerifiedAt: new Date(),
+    roles: {
+      connect: { id: userRole.id },
+    },
+  }));
+
+  for (const user of users) {
+    await prisma.users.create({
+      data: user,
+    });
+  }
 }
 
 main()
