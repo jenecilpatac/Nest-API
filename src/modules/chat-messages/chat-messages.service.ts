@@ -94,6 +94,25 @@ export class ChatMessagesService {
             attachment: true,
           },
         },
+        seenbies: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -458,5 +477,29 @@ export class ChatMessagesService {
     return {
       message: 'Reaction added successfully',
     };
+  }
+
+  async seenPublicMessage(userId: string, messageId: number) {
+    const existsSeen = await this.prisma.seeners.findFirst({
+      where: {
+        userId,
+        messageId,
+      },
+    });
+
+    const existsMessage = await this.prisma.messages.findUnique({
+      where: {
+        id: messageId,
+      },
+    });
+
+    if (!existsMessage || existsSeen) return;
+
+    return await this.prisma.seeners.create({
+      data: {
+        userId,
+        messageId,
+      },
+    });
   }
 }

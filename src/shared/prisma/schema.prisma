@@ -57,6 +57,7 @@ model users {
   receiverChats    chats[]            @relation("ReceiverChats")
   messages         messages[]
   reactions        reactions[]        @relation("UserReacted")
+  seenbies         seeners[]          @relation("UserSeen")
 }
 
 model roles {
@@ -168,6 +169,7 @@ model messages {
   parent     messages?   @relation("MessageToReplies", fields: [parentId], references: [id], onDelete: SetNull)
   replies    messages[]  @relation("MessageToReplies")
   reactions  reactions[] @relation("MessageReaction")
+  seenbies   seeners[]   @relation("MessageSeen")
   isDeleted  Boolean?    @default(false)
   createdAt  DateTime    @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
@@ -181,4 +183,16 @@ model reactions {
   message   messages? @relation("MessageReaction", fields: [messageId], references: [id], onDelete: Cascade)
   label     String?
   user      users?    @relation("UserReacted", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model seeners {
+  id       Int       @id @default(autoincrement())
+  userId    String?
+  messageId Int?
+  user      users?    @relation("UserSeen", fields: [userId], references: [id], onDelete: Cascade)
+  message   messages? @relation("MessageSeen", fields: [messageId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 }

@@ -133,4 +133,16 @@ export class ChatMessagesController {
       message: response.message,
     };
   }
+
+  @Post('seen-public-message')
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  async seenMessage(@AuthUser() user, @Body() items: { messageId: number }) {
+    await this.chatMessagesService.seenPublicMessage(user.id, items.messageId);
+
+    return {
+      status: 200,
+      message: 'Messages seen successfully',
+    };
+  }
 }
