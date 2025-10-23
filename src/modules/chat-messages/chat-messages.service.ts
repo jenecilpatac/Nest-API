@@ -80,7 +80,20 @@ export class ChatMessagesService {
             },
           },
         },
-        parent: true,
+        parent: {
+          select: {
+            id: true,
+            sentBy: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
+            userId: true,
+            content: true,
+            attachment: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -250,7 +263,20 @@ export class ChatMessagesService {
                 },
               },
             },
-            parent: true,
+            parent: {
+              select: {
+                id: true,
+                sentBy: {
+                  select: {
+                    name: true,
+                    id: true,
+                  },
+                },
+                userId: true,
+                content: true,
+                attachment: true,
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
