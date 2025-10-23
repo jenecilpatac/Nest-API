@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateChatDto {
   @IsOptional()
@@ -8,4 +8,8 @@ export class CreateChatDto {
   @IsOptional()
   @IsString()
   attachment?: string;
+
+  @IsOptional()
+  @IsNumber()
+  parentId?: number;
 }

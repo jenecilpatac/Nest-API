@@ -56,6 +56,7 @@ model users {
   senderChats      chats[]            @relation("SenderChats")
   receiverChats    chats[]            @relation("ReceiverChats")
   messages         messages[]
+  reactions        reactions[]        @relation("UserReacted")
 }
 
 model roles {
@@ -155,15 +156,29 @@ model chats {
 }
 
 model messages {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   userId     String?
-  sentBy     users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sentBy     users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatId     Int?
   content    String?
   attachment String?
-  isSeen     Boolean? @default(false)
-  chat       chats?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  isDeleted  Boolean? @default(false)
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  isSeen     Boolean?    @default(false)
+  chat       chats?      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  parentId   Int?
+  parent     messages?   @relation("MessageToReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies    messages[]  @relation("MessageToReplies")
+  reactions  reactions[] @relation("MessageReaction")
+  isDeleted  Boolean?    @default(false)
+  createdAt  DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model reactions {
+  id        Int       @id @default(autoincrement())
+  userId    String?
+  messageId Int?
+  value     String
+  message   messages? @relation("MessageReaction", fields: [messageId], references: [id], onDelete: Cascade)
+  label     String?
+  user      users?    @relation("UserReacted", fields: [userId], references: [id], onDelete: Cascade)
 }

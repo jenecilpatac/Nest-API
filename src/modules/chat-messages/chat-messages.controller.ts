@@ -104,12 +104,33 @@ export class ChatMessagesController {
 
   @Delete('delete/:id/message')
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 3, ttl: 5000 } })
   async deleteMessage(@Param('id') id: string) {
     await this.chatMessagesService.deleteMessage(parseInt(id));
 
     return {
       status: 204,
       message: 'Message deleted successfully',
+    };
+  }
+
+  @Post('react')
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  async reactToMessage(
+    @AuthUser() user,
+    @Body() items: { messageId: number; value: string; label: string },
+  ) {
+    const response = await this.chatMessagesService.reactToMessage(
+      user.id,
+      items.messageId,
+      items.value,
+      items.label,
+    );
+
+    return {
+      status: 201,
+      message: response.message,
     };
   }
 }

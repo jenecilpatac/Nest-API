@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,7 +16,7 @@ export class ChatMessagesService {
   async create(createChatMessageDto: CreateChatMessageDto, userId: string) {
     let errors: any = {};
 
-    const { content, attachment } = createChatMessageDto;
+    const { content, attachment, parentId } = createChatMessageDto;
 
     if (!content && !attachment) {
       errors.content = { message: 'Content is required' };
@@ -27,6 +32,7 @@ export class ChatMessagesService {
         userId,
         content,
         attachment,
+        parentId,
       },
     });
   }
@@ -55,6 +61,26 @@ export class ChatMessagesService {
             },
           },
         },
+        reactions: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile_pictures: {
+                  select: {
+                    avatar: true,
+                    isSet: true,
+                  },
+                  where: {
+                    isSet: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        parent: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -205,6 +231,26 @@ export class ChatMessagesService {
                 },
               },
             },
+            reactions: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    profile_pictures: {
+                      select: {
+                        avatar: true,
+                        isSet: true,
+                      },
+                      where: {
+                        isSet: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            parent: true,
           },
           orderBy: {
             createdAt: 'desc',
@@ -336,5 +382,55 @@ export class ChatMessagesService {
         isDeleted: true,
       },
     });
+  }
+
+  async reactToMessage(
+    userId: string,
+    messageId: number,
+    value: string,
+    label: string,
+  ) {
+    const message = await this.prisma.messages.findUnique({
+      where: {
+        id: messageId,
+      },
+    });
+
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    const existingReaction = await this.prisma.reactions.findFirst({
+      where: {
+        userId,
+        messageId,
+        label,
+      },
+    });
+
+    if (existingReaction) {
+      await this.prisma.reactions.delete({
+        where: {
+          id: existingReaction.id,
+        },
+      });
+
+      return {
+        message: 'Reaction deleted successfully',
+      };
+    }
+
+    await this.prisma.reactions.create({
+      data: {
+        userId,
+        messageId: message.id,
+        value,
+        label,
+      },
+    });
+
+    return {
+      message: 'Reaction added successfully',
+    };
   }
 }

@@ -15,7 +15,7 @@ export class ChatsService {
   ) {
     let errors: any = {};
 
-    const { content, attachment } = CreateChatDto;
+    const { content, attachment, parentId } = CreateChatDto;
 
     if (!content && !attachment) {
       errors.content = { message: 'Content is required' };
@@ -41,6 +41,7 @@ export class ChatsService {
           content,
           attachment,
           userId: senderId,
+          parentId
         },
       });
 
