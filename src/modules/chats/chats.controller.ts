@@ -7,13 +7,16 @@ import {
   Param,
   Post,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('chats')
 export class ChatsController {
@@ -21,13 +24,15 @@ export class ChatsController {
 
   @Post('sendMessage/:receiverId')
   @SkipThrottle()
+  @UseInterceptors(FilesInterceptor('attachments'))
   @UseGuards(JwtAuthGuard)
   async sendMessage(
     @Body() createChatDto: CreateChatDto,
     @AuthUser() user,
     @Param('receiverId') receiverId,
+    @UploadedFiles() attachments: Express.Multer.File[],
   ) {
-    return await this.chatsService.create(createChatDto, user.id, receiverId);
+    return await this.chatsService.create(createChatDto, user.id, receiverId, attachments);
   }
 
   @Get('conversations')

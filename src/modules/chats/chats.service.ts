@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { DEFAULT_CHAT_MESSAGES_TAKE } from '../../common/utils/constants';
-import { getLinkPreview } from 'link-preview-js';
 
 @Injectable()
 export class ChatsService {
@@ -12,12 +11,15 @@ export class ChatsService {
     CreateChatDto: CreateChatDto,
     senderId: string,
     receiverId: string,
+    attachments?: Express.Multer.File[],
   ) {
     let errors: any = {};
 
     const { content, attachment, parentId } = CreateChatDto;
 
-    if (!content && !attachment) {
+    const boolAttachment = attachment === 'true';
+
+    if (!content?.trim() && !boolAttachment) {
       errors.content = { message: 'Content is required' };
     }
 
@@ -34,14 +36,26 @@ export class ChatsService {
       },
     });
 
+    const attachmentsToAttach = boolAttachment
+      ? attachments.map((file) => ({
+          userId: senderId,
+          value: file.path?.replace(/\\/g, '/'),
+        }))
+      : [];
+
     if (existingConvo) {
-      const sent = this.prisma.messages.create({
+      const sent = await this.prisma.messages.create({
         data: {
           chatId: existingConvo.id,
           content,
-          attachment,
+          attachment: boolAttachment,
           userId: senderId,
-          parentId
+          parentId: Number(parentId),
+          message_attachments: {
+            createMany: {
+              data: attachmentsToAttach,
+            },
+          },
         },
       });
 
@@ -58,19 +72,26 @@ export class ChatsService {
 
       return sent;
     } else {
-      return this.prisma.chats.create({
+      const chats = await this.prisma.chats.create({
         data: {
           senderId,
           receiverId,
           messages: {
             create: {
               content,
-              attachment,
+              attachment: boolAttachment,
               userId: senderId,
+              message_attachments: {
+                createMany: {
+                  data: attachmentsToAttach,
+                },
+              },
             },
           },
         },
       });
+
+      return chats;
     }
   }
 
@@ -109,6 +130,11 @@ export class ChatsService {
                     },
                   },
                 },
+              },
+            },
+            _count: {
+              select: {
+                message_attachments: true,
               },
             },
           },

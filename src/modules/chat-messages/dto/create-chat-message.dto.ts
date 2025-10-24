@@ -6,10 +6,10 @@ export class CreateChatMessageDto {
   content?: string;
 
   @IsOptional()
-  @IsBoolean()
-  attachment?: boolean;
+  @IsString()
+  attachment?: string;
 
   @IsOptional()
-  @IsNumber()
-  parentId?: number;
+  @IsString()
+  parentId?: string;
 }

@@ -13,12 +13,20 @@ import { getLinkPreview } from 'link-preview-js';
 export class ChatMessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createChatMessageDto: CreateChatMessageDto, userId: string) {
+  async create(
+    createChatMessageDto: CreateChatMessageDto,
+    userId: string,
+    attachments?: Express.Multer.File[],
+  ) {
     let errors: any = {};
 
     const { content, attachment, parentId } = createChatMessageDto;
 
-    if (!content && !attachment) {
+    const boolAttachment = attachment === "true";
+
+    const parent_id = Number(parentId);
+
+    if (!content && !boolAttachment) {
       errors.content = { message: 'Content is required' };
     }
 
@@ -26,15 +34,29 @@ export class ChatMessagesService {
       throw new HttpException(errors, HttpStatus.BAD_REQUEST);
     }
 
-    return await this.prisma.messages.create({
+    const attachmentsToAttach = boolAttachment
+      ? attachments.map((file) => ({
+          userId: userId,
+          value: file.path?.replace(/\\/g, '/'),
+        }))
+      : [];
+
+    const message = await this.prisma.messages.create({
       data: {
         chatId: null,
         userId,
         content,
-        attachment,
-        parentId,
+        attachment: boolAttachment,
+        parentId: Number(parentId),
+        message_attachments: {
+          createMany: {
+            data: attachmentsToAttach,
+          },
+        },
       },
     });
+
+    return message;
   }
 
   async findAll(params: any): Promise<any> {
@@ -111,6 +133,13 @@ export class ChatMessagesService {
                 },
               },
             },
+          },
+        },
+        message_attachments: {
+          select: {
+            messageId: true,
+            id: true,
+            value: true,
           },
         },
       },
@@ -294,6 +323,13 @@ export class ChatMessagesService {
                 userId: true,
                 content: true,
                 attachment: true,
+              },
+            },
+            message_attachments: {
+              select: {
+                messageId: true,
+                id: true,
+                value: true,
               },
             },
           },

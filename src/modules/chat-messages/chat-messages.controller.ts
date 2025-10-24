@@ -10,7 +10,9 @@ import {
   Post,
   Query,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatMessagesService } from './chat-messages.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -18,6 +20,7 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('chat-messages')
 export class ChatMessagesController {
@@ -32,12 +35,18 @@ export class ChatMessagesController {
 
   @Post('send-public-message')
   @SkipThrottle()
+  @UseInterceptors(FilesInterceptor('attachments'))
   @UseGuards(JwtAuthGuard)
-  createPublicMessage(
+  async createPublicMessage(
     @AuthUser() user,
     @Body() createChatMessageDto: CreateChatMessageDto,
+    @UploadedFiles() attachments: Express.Multer.File[],
   ) {
-    return this.chatMessagesService.create(createChatMessageDto, user.id);
+    return await this.chatMessagesService.create(
+      createChatMessageDto,
+      user.id,
+      attachments,
+    );
   }
 
   @Patch('seen-message/:receiverId/:chatId')
