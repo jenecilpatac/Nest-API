@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateChatMessageDto {
   @IsOptional()
@@ -6,8 +6,8 @@ export class CreateChatMessageDto {
   content?: string;
 
   @IsOptional()
-  @IsString()
-  attachment?: string;
+  @IsBoolean()
+  attachment?: boolean;
 
   @IsOptional()
   @IsNumber()

@@ -29,35 +29,36 @@ enum gender {
 }
 
 model users {
-  id               String             @id @default(uuid())
-  name             String?
-  address          String?
-  dateOfBirth      DateTime?          @db.Date
-  phoneNumber      String?
-  email            String?            @unique
-  username         String?            @unique
-  emailVerifiedAt  DateTime?          @db.Timestamptz(6)
-  password         String?
-  rememberToken    String?            @unique
-  createdAt        DateTime           @default(now()) @db.Timestamptz(6)
-  updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
-  provider         String?
-  gender           gender?            @default(PreferNotToSay)
-  providerId       String?            @unique
-  bio              String?
-  jobTitle         String?
-  posts            posts[]
-  todos            todos[]
-  roles            roles[]            @relation("UserRoles")
-  profile_pictures profile_pictures[]
-  cover_photos     cover_photos[]
-  likes            likes[]
-  comments         comments[]
-  senderChats      chats[]            @relation("SenderChats")
-  receiverChats    chats[]            @relation("ReceiverChats")
-  messages         messages[]
-  reactions        reactions[]        @relation("UserReacted")
-  seenbies         seeners[]          @relation("UserSeen")
+  id                  String                @id @default(uuid())
+  name                String?
+  address             String?
+  dateOfBirth         DateTime?             @db.Date
+  phoneNumber         String?
+  email               String?               @unique
+  username            String?               @unique
+  emailVerifiedAt     DateTime?             @db.Timestamptz(6)
+  password            String?
+  rememberToken       String?               @unique
+  createdAt           DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  provider            String?
+  gender              gender?               @default(PreferNotToSay)
+  providerId          String?               @unique
+  bio                 String?
+  jobTitle            String?
+  posts               posts[]
+  todos               todos[]
+  roles               roles[]               @relation("UserRoles")
+  profile_pictures    profile_pictures[]
+  cover_photos        cover_photos[]
+  likes               likes[]
+  comments            comments[]
+  senderChats         chats[]               @relation("SenderChats")
+  receiverChats       chats[]               @relation("ReceiverChats")
+  messages            messages[]
+  reactions           reactions[]           @relation("UserReacted")
+  seenbies            seeners[]             @relation("UserSeen")
+  message_attachments message_attachments[] @relation("UserMessageAttachments")
 }
 
 model roles {
@@ -157,22 +158,23 @@ model chats {
 }
 
 model messages {
-  id         Int         @id @default(autoincrement())
-  userId     String?
-  sentBy     users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatId     Int?
-  content    String?
-  attachment String?
-  isSeen     Boolean?    @default(false)
-  chat       chats?      @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  parentId   Int?
-  parent     messages?   @relation("MessageToReplies", fields: [parentId], references: [id], onDelete: SetNull)
-  replies    messages[]  @relation("MessageToReplies")
-  reactions  reactions[] @relation("MessageReaction")
-  seenbies   seeners[]   @relation("MessageSeen")
-  isDeleted  Boolean?    @default(false)
-  createdAt  DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+  id                  Int                   @id @default(autoincrement())
+  userId              String?
+  sentBy              users?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId              Int?
+  content             String?
+  attachment          Boolean               @default(false)
+  isSeen              Boolean?              @default(false)
+  chat                chats?                @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  parentId            Int?
+  parent              messages?             @relation("MessageToReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies             messages[]            @relation("MessageToReplies")
+  reactions           reactions[]           @relation("MessageReaction")
+  seenbies            seeners[]             @relation("MessageSeen")
+  isDeleted           Boolean?              @default(false)
+  createdAt           DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  message_attachments message_attachments[] @relation("MessageAttachments")
 }
 
 model reactions {
@@ -188,11 +190,22 @@ model reactions {
 }
 
 model seeners {
-  id       Int       @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    String?
   messageId Int?
   user      users?    @relation("UserSeen", fields: [userId], references: [id], onDelete: Cascade)
   message   messages? @relation("MessageSeen", fields: [messageId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model message_attachments {
+  id        Int       @id @default(autoincrement())
+  userId    String?
+  messageId Int?
+  value     String
+  user      users?    @relation("UserMessageAttachments", fields: [userId], references: [id], onDelete: Cascade)
+  message   messages? @relation("MessageAttachments", fields: [messageId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 }
