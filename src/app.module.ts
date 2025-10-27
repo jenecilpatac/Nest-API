@@ -18,6 +18,7 @@ import { EmailService } from './modules/email/email.service';
 import { EmailModule } from './modules/email/email.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ChatMessagesModule } from './modules/chat-messages/chat-messages.module';
+import { MessageAttachmentsModule } from './modules/message-attachments/message-attachments.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ChatMessagesModule } from './modules/chat-messages/chat-messages.module
     EmailModule,
     ChatsModule,
     ChatMessagesModule,
+    MessageAttachmentsModule,
   ],
   providers: [
     IsUnique,
