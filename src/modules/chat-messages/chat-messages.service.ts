@@ -22,9 +22,7 @@ export class ChatMessagesService {
 
     const { content, attachment, parentId } = createChatMessageDto;
 
-    const boolAttachment = attachment === "true";
-
-    const parent_id = Number(parentId);
+    const boolAttachment = attachment === 'true';
 
     if (!content && !boolAttachment) {
       errors.content = { message: 'Content is required' };
@@ -148,6 +146,35 @@ export class ChatMessagesService {
       },
     });
 
+    const allMessages = messages.map((message) => {
+      if (message.isDeleted) {
+        const {
+          id,
+          seenbies,
+          parent,
+          isDeleted,
+          createdAt,
+          updatedAt,
+          sentBy,
+          userId,
+        } = message;
+
+        return {
+          id,
+          seenbies,
+          parent,
+          isDeleted,
+          createdAt,
+          updatedAt,
+          content: '',
+          reactions: [],
+          sentBy,
+          userId,
+        };
+      }
+      return message;
+    });
+
     function parsedItem(message: any) {
       const urlPattern =
         /\b(https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(?:\/[^\s]*)?|https?:\/\/(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?(?:\/[^\s]*)?|(?<!@)\b[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b(?!@))\b/g;
@@ -160,7 +187,7 @@ export class ChatMessagesService {
     }
 
     const parsedMessages = await Promise.all(
-      messages.map(async (message) => {
+      allMessages.map(async (message) => {
         const link = parsedItem(message);
 
         let previewData = null;
@@ -392,8 +419,41 @@ export class ChatMessagesService {
     const parsedChats = await Promise.all(
       chats.map(async (chat: any) => {
         const { messages, ...data } = chat;
+        const allMessages = messages.map((message) => {
+          if (message.isDeleted) {
+            const {
+              id,
+              seenbies,
+              parent,
+              isDeleted,
+              createdAt,
+              updatedAt,
+              sentBy,
+              userId,
+              chatId,
+              isSeen,
+            } = message;
+
+            return {
+              id,
+              seenbies,
+              parent,
+              isDeleted,
+              createdAt,
+              updatedAt,
+              content: '',
+              reactions: [],
+              sentBy,
+              userId,
+              chatId,
+              isSeen,
+            };
+          }
+          return message;
+        });
+
         const parsedMessage = await Promise.all(
-          messages.map(async (message: any) => {
+          allMessages.map(async (message: any) => {
             const link = parsedItem(message);
 
             let previewData = null;
