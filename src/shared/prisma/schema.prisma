@@ -46,6 +46,7 @@ model users {
   providerId          String?               @unique
   bio                 String?
   jobTitle            String?
+  status              DateTime?             @db.Timestamptz(6)
   posts               posts[]
   todos               todos[]
   roles               roles[]               @relation("UserRoles")

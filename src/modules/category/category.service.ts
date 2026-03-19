@@ -11,7 +11,11 @@ export class CategoryService {
   findAll(): Promise<any[]> {
     return this.prisma.categories.findMany({
       include: {
-        posts: true,
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
       },
     });
   }
@@ -41,8 +45,8 @@ export class CategoryService {
               where: {
                 publishedAs: {
                   notIn: ['private'],
-                }
-              }
+                },
+              },
             },
           },
         },
@@ -50,7 +54,7 @@ export class CategoryService {
           where: {
             publishedAs: {
               notIn: ['private'],
-            }
+            },
           },
           include: {
             user: {

@@ -12,14 +12,12 @@ async function main() {
     data: {
       name: 'superadmin',
     },
-    skipDuplicates: true,
   });
 
   const adminRole = await prisma.roles.create({
     data: {
       name: 'admin',
     },
-    skipDuplicates: true,
   });
 
   const userRole = await prisma.roles.create({
@@ -33,6 +31,60 @@ async function main() {
       name: 'moderator',
     },
   });
+
+  const categories = [
+    {
+      categoryName: 'Technology',
+      description:
+        'Posts about software development, gadgets, and tech trends.',
+      slug: 'technology',
+    },
+    {
+      categoryName: 'Health',
+      description: 'Articles about fitness, wellness, and medical topics.',
+      slug: 'health',
+    },
+    {
+      categoryName: 'Travel',
+      description: 'Guides, tips, and experiences from around the world.',
+      slug: 'travel',
+    },
+    {
+      categoryName: 'Food',
+      description: 'Recipes, cooking tips, and food reviews.',
+      slug: 'food',
+    },
+    {
+      categoryName: 'Lifestyle',
+      description: 'Content about daily living, habits, and personal growth.',
+      slug: 'lifestyle',
+    },
+    {
+      categoryName: 'Business',
+      description: 'Insights on entrepreneurship, startups, and markets.',
+      slug: 'business',
+    },
+    {
+      categoryName: 'Education',
+      description: 'Learning resources, tutorials, and academic topics.',
+      slug: 'education',
+    },
+    {
+      categoryName: 'Entertainment',
+      description: 'Movies, music, celebrity news, and pop culture.',
+      slug: 'entertainment',
+    },
+    {
+      categoryName: 'Sports',
+      description: 'News, updates, and analysis on various sports.',
+      slug: 'sports',
+    },
+    {
+      categoryName: 'Finance',
+      description: 'Personal finance, investing, and money management tips.',
+      slug: 'finance',
+    },
+  ];
 
   const user = await prisma.users.create({
     data: {
@@ -103,6 +155,10 @@ async function main() {
       data: user,
     });
   }
+
+  await prisma.categories.createMany({
+    data: categories,
+  });
 }
 
 main()
