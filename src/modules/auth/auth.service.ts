@@ -123,7 +123,7 @@ export class AuthService {
 
     let user = await this.prisma.users.findFirst({
       where: {
-        OR: [{ providerId: profile.id }, { email: profile.emails[0] }],
+        OR: [{ providerId: profile.id }, { email: profile.emails[0]?.value }],
       },
       include: { roles: true },
     });
@@ -155,14 +155,14 @@ export class AuthService {
         data: {
           username: profile.username
             ? profile.username
-            : profile.emails[0].split('@')[0] || 'Unknown',
+            : profile.emails[0].value.split('@')[0] || 'Unknown',
           email: email,
           password: hashedPassword,
           emailVerifiedAt: new Date(),
           provider,
           name: profile.displayName
             ? profile.displayName
-            : profile.emails[0].split('@')[0] || 'Unknown',
+            : profile.emails[0].value.split('@')[0] || 'Unknown',
           providerId: profile.id,
           rememberToken: this.generateRememberToken(),
           roles: {
