@@ -186,4 +186,11 @@ export class AuthService {
 
     return this.jwtService.sign(payload, { expiresIn: '1d' });
   }
+
+  async setStatus(id: string, status: string) {
+    return this.prisma.users.update({
+      where: { id },
+      data: { status: status === 'hidden' ? new Date() : null },
+    });
+  }
 }

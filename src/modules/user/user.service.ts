@@ -159,6 +159,7 @@ export class UserService {
         jobTitle: true,
         phoneNumber: true,
         bio: true,
+        status: true,
         profile_pictures: {
           select: {
             avatar: true,

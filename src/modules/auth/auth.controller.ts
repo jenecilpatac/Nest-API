@@ -106,4 +106,18 @@ export class AuthController {
       `${process.env.CLIENT_URL}/success?token=${data.jwtToken}&rememberToken=${data.user.rememberToken}&email=${data.user.email}`,
     );
   }
+
+  @Post('status')
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  async setStatus(@AuthUser() user: any, @Req() req) {
+    const status = req.body.status;
+
+    const userDetails = await this.authService.setStatus(user?.id, status);
+
+    return {
+      statusCode: 200,
+      userDetails,
+    };
+  }
 }

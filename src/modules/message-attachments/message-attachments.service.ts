@@ -39,7 +39,7 @@ export class MessageAttachmentsService {
     return await this.prismaService.message_attachments.findMany({
       where: {
         message: {
-          chatId: chatId.id,
+          chatId: chatId?.id,
           isDeleted: false,
         },
       },
