@@ -121,8 +121,10 @@ export class AuthService {
       throw new Error('No provider ID available from the profile');
     }
 
-    let user = await this.prisma.users.findUnique({
-      where: { providerId: profile.id },
+    let user = await this.prisma.users.findFirst({
+      where: {
+        OR: [{ providerId: profile.id }, { email: profile.emails[0] }],
+      },
       include: { roles: true },
     });
 
@@ -153,14 +155,14 @@ export class AuthService {
         data: {
           username: profile.username
             ? profile.username
-            : profile.displayName || 'Unknown',
+            : profile.emails[0].split('@')[0] || 'Unknown',
           email: email,
           password: hashedPassword,
           emailVerifiedAt: new Date(),
           provider,
           name: profile.displayName
             ? profile.displayName
-            : profile.username || 'Unknown',
+            : profile.emails[0].split('@')[0] || 'Unknown',
           providerId: profile.id,
           rememberToken: this.generateRememberToken(),
           roles: {
